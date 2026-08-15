@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>SkillSwap AI - Profile Setup Step 3</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d9e3f6",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#4edea3",
+                        "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                        "surface-variant": "#d9e3f6",
+                        "on-surface": "#121c2a",
+                        "surface-container-high": "#dee9fc",
+                        "secondary": "#006b5f",
+                        "tertiary": "#00687a",
+                        "surface-tint": "#006c49",
+                        "surface-stroke": "#E5E7EB",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#6df5e1",
+                        "tertiary-container": "#00b2d0",
+                        "outline": "#6c7a71",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-bg": "#F9FAFB",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "on-background": "#121c2a",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-surface": "#27313f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#003f4b",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#00422b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline-variant": "#bbcabf",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e6eeff",
+                        "on-tertiary-fixed": "#001f26",
+                        "on-secondary-container": "#006f64",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d0dbed",
+                        "primary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#71f8e4",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .chip-selected {
+            background-color: #6df5e1; /* secondary-container */
+            color: #006f64; /* on-secondary-container */
+            border-color: #6df5e1;
+        }
+        .chip-default {
+            background-color: #f8f9ff; /* surface */
+            color: #121c2a; /* on-surface */
+            border-color: #E5E7EB; /* surface-stroke */
+        }
+        .time-slot-selected {
+            background-color: #10b981; /* Emerald Green */
+            color: #ffffff;
+            border-color: #10b981;
+        }
+        .time-slot-default {
+            background-color: #ffffff;
+            color: #121c2a;
+            border-color: #E5E7EB;
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface antialiased min-h-screen flex flex-col font-body-md">
+<!-- Top Navigation (Transactional intent, suppressed nav links, keeping brand/back) -->
+<header class="bg-surface-container-lowest w-full px-margin-mobile md:px-margin-desktop h-16 flex items-center justify-between sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="p-2 -ml-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-primary">SkillSwap AI</span>
+</div>
+<div class="font-label-md text-label-md text-on-surface-variant bg-surface-variant px-3 py-1 rounded-full">
+            Step 3 of 3
+        </div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-3xl mx-auto px-margin-mobile md:px-0 py-stack-lg flex flex-col">
+<!-- Header Section -->
+<div class="mb-stack-md text-center md:text-left">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">When are you free?</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Set your preferred days and times for skill swaps. This helps AI match you with available peers.</p>
+</div>
+<!-- Availability Configuration Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-stroke shadow-[0px_4px_20px_rgba(31,41,55,0.04)] p-stack-md flex flex-col gap-stack-lg">
+<!-- Days of Week Selection -->
+<section>
+<div class="flex items-center justify-between mb-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Days of the Week</h2>
+<span aria-label="AI Suggested" class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Select the days you are typically available.</p>
+<div class="flex flex-wrap gap-3 justify-center md:justify-start" id="day-chips">
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-selected transform active:scale-95" data-day="Mon">M</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-default transform active:scale-95 hover:bg-surface-variant" data-day="Tue">T</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-selected transform active:scale-95" data-day="Wed">W</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-default transform active:scale-95 hover:bg-surface-variant" data-day="Thu">Th</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-selected transform active:scale-95" data-day="Fri">F</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-default transform active:scale-95 hover:bg-surface-variant" data-day="Sat">S</button>
+<button class="day-chip w-12 h-12 rounded-full border flex items-center justify-center font-label-md text-label-md transition-all duration-200 chip-default transform active:scale-95 hover:bg-surface-variant" data-day="Sun">S</button>
+</div>
+</section>
+<hr class="border-surface-stroke"/>
+<!-- Time Slots Selection -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Preferred Times</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">When do you prefer to meet on your selected days?</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="time-slots">
+<!-- Morning -->
+<button class="time-slot border rounded-lg p-4 flex flex-col items-center gap-2 transition-all duration-200 time-slot-default transform active:scale-95 hover:border-primary-container hover:shadow-md">
+<span class="material-symbols-outlined text-3xl mb-1">wb_twilight</span>
+<span class="font-label-md text-label-md">Morning</span>
+<span class="font-label-sm text-label-sm opacity-80">8 AM - 12 PM</span>
+</button>
+<!-- Afternoon -->
+<button class="time-slot border rounded-lg p-4 flex flex-col items-center gap-2 transition-all duration-200 time-slot-selected transform active:scale-95 shadow-[0px_10px_30px_rgba(31,41,55,0.08)]">
+<span class="material-symbols-outlined text-3xl mb-1">light_mode</span>
+<span class="font-label-md text-label-md">Afternoon</span>
+<span class="font-label-sm text-label-sm opacity-90">12 PM - 5 PM</span>
+</button>
+<!-- Evening -->
+<button class="time-slot border rounded-lg p-4 flex flex-col items-center gap-2 transition-all duration-200 time-slot-selected transform active:scale-95 shadow-[0px_10px_30px_rgba(31,41,55,0.08)]">
+<span class="material-symbols-outlined text-3xl mb-1">dark_mode</span>
+<span class="font-label-md text-label-md">Evening</span>
+<span class="font-label-sm text-label-sm opacity-90">5 PM - 9 PM</span>
+</button>
+</div>
+</section>
+<!-- Timezone Info -->
+<div class="bg-surface-variant rounded-lg p-3 flex items-start gap-3 mt-2 border border-surface-container-high">
+<span class="material-symbols-outlined text-on-surface-variant mt-0.5" style="font-size: 20px;">language</span>
+<div class="flex-grow">
+<p class="font-body-sm text-body-sm text-on-surface">Times are shown in your local timezone (Pacific Time - PT).</p>
+<a class="font-label-sm text-label-sm text-primary hover:underline mt-1 inline-block" href="#">Change timezone</a>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-stack-lg flex flex-col sm:flex-row justify-end items-center gap-4">
+<button class="w-full sm:w-auto px-6 py-3 rounded-full border border-primary text-primary font-label-md text-label-md hover:bg-surface-variant transition-colors">
+                Skip for now
+            </button>
+<button class="w-full sm:w-auto px-8 py-3 rounded-full bg-primary-container text-white font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm">
+<span>Complete Profile</span>
+<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span>
+</button>
+</div>
+</main>
+<script>
+        // Interactive Logic for Chips and Slots
+        document.addEventListener('DOMContentLoaded', () => {
+            // Day Chips
+            const dayChips = document.querySelectorAll('.day-chip');
+            dayChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    if (chip.classList.contains('chip-selected')) {
+                        chip.classList.remove('chip-selected');
+                        chip.classList.add('chip-default', 'hover:bg-surface-variant');
+                    } else {
+                        chip.classList.remove('chip-default', 'hover:bg-surface-variant');
+                        chip.classList.add('chip-selected');
+                    }
+                });
+            });
+
+            // Time Slots
+            const timeSlots = document.querySelectorAll('.time-slot');
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', () => {
+                    if (slot.classList.contains('time-slot-selected')) {
+                        slot.classList.remove('time-slot-selected', 'shadow-[0px_10px_30px_rgba(31,41,55,0.08)]');
+                        slot.classList.add('time-slot-default', 'hover:border-primary-container', 'hover:shadow-md');
+                    } else {
+                        slot.classList.remove('time-slot-default', 'hover:border-primary-container', 'hover:shadow-md');
+                        slot.classList.add('time-slot-selected', 'shadow-[0px_10px_30px_rgba(31,41,55,0.08)]');
+                    }
+                });
+            });
+        });
+    </script>
+</body></html>

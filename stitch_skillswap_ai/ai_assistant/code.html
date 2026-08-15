@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SkillSwap AI - AI Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d9e3f6",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#4edea3",
+                        "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                        "surface-variant": "#d9e3f6",
+                        "on-surface": "#121c2a",
+                        "surface-container-high": "#dee9fc",
+                        "secondary": "#006b5f",
+                        "tertiary": "#00687a",
+                        "surface-tint": "#006c49",
+                        "surface-stroke": "#E5E7EB",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#6df5e1",
+                        "tertiary-container": "#00b2d0",
+                        "outline": "#6c7a71",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-bg": "#F9FAFB",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "on-background": "#121c2a",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-surface": "#27313f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#003f4b",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#00422b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline-variant": "#bbcabf",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e6eeff",
+                        "on-tertiary-fixed": "#001f26",
+                        "on-secondary-container": "#006f64",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d0dbed",
+                        "primary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#71f8e4",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        .ai-message-bubble {
+            background: linear-gradient(145deg, #ffffff, #f0f4ff);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.05);
+        }
+
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background: linear-gradient(to bottom, #10B981, transparent);
+            z-index: 0;
+        }
+        .timeline-node:last-child::before {
+            display: none;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface font-body-md min-h-screen flex flex-col pt-16 pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-40 bg-surface dark:bg-on-secondary-fixed flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 shadow-sm">
+<div class="flex items-center gap-4">
+<img alt="User profile photo" class="w-10 h-10 rounded-full object-cover border border-surface-stroke" data-alt="A small, professional portrait photo of a young woman with dark hair, smiling gently in a well-lit modern office environment. Soft background blur, bright and clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS1UjiAJP3Y1sOYcZ4UX0w1FkyzWdnrnG8NdxFGDeX1Le3DjL0zu8BCNfYt46LjPknQy8zfPvlkJeTgSWOk9KrCmzaswPNVOGFywKLfSiaxcpCSdZJlmMNiRKpohMD1xmzEwCxoSFtzXB_onzEzVI0LRzL8FhleSllX8XA1mwPsW6vaDsIw11KYvoGFm69RlzzozMDAmEha9cHameV4wK2W7qoipqYuQKD3FIWCmVYsHYOA_kS6EmV9Q"/>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">SkillSwap AI</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant dark:text-outline-variant hover:opacity-80">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-4xl mx-auto px-margin-mobile md:px-0 py-stack-md flex flex-col gap-stack-lg">
+<!-- Chat Area -->
+<div class="flex flex-col gap-stack-md flex-grow">
+<!-- User Message -->
+<div class="flex justify-end w-full">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-sm px-6 py-4 max-w-[85%] shadow-[0px_4px_20px_rgba(31,41,55,0.04)]">
+<p class="font-body-md text-body-md">Can you help me create a learning plan for Python? I'm a complete beginner.</p>
+</div>
+</div>
+<!-- AI Message -->
+<div class="flex justify-start w-full gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0 relative overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-[linear-gradient(135deg,#10B981_0%,#14B8A6_50%,#06B6D4_100%)] opacity-20 animate-pulse"></div>
+<span class="material-symbols-outlined relative z-10" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="ai-message-bubble rounded-2xl rounded-tl-sm p-6 w-full max-w-[90%]">
+<div class="flex items-center gap-2 mb-4">
+<span class="font-label-md text-label-md text-primary tracking-widest uppercase">SkillSwap AI Assistant</span>
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+</div>
+<div class="font-body-md text-body-md text-on-surface mb-stack-md" id="ai-response-text">
+                        Here's your personalized 30-day Python learning plan. We'll start with variables and loops...
+                    </div>
+<!-- Plan Visualization: Timeline -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-surface-stroke">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-stack-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">route</span>
+                            30-Day Python Mastery
+                        </h3>
+<div class="relative pl-6 mt-4 flex flex-col gap-6 border-l-2 border-surface-variant">
+<!-- Milestone 1 -->
+<div class="relative timeline-node">
+<div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-surface-container-lowest z-10 shadow-sm"></div>
+<div class="bg-surface-bg p-4 rounded-lg border border-surface-stroke">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-label-md text-label-md text-on-surface font-semibold">Week 1: Foundations</h4>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-variant px-2 py-1 rounded-full">Days 1-7</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Variables, Data Types (Strings, Integers, Floats), and basic Operators. Setting up your environment.</p>
+</div>
+</div>
+<!-- Milestone 2 -->
+<div class="relative timeline-node">
+<div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-surface-variant border-4 border-surface-container-lowest z-10"></div>
+<div class="bg-surface-bg p-4 rounded-lg border border-surface-stroke opacity-75">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-label-md text-label-md text-on-surface font-semibold">Week 2: Control Flow</h4>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-variant px-2 py-1 rounded-full">Days 8-14</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">If/Else statements, For loops, and While loops. Basic logical operations.</p>
+</div>
+</div>
+</div>
+<button class="mt-stack-md w-full py-3 rounded-lg border border-surface-stroke text-primary font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+                            View Full 30-Day Plan
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Input Area (Fixed Bottom Desktop, Above BottomNav Mobile) -->
+<div class="fixed bottom-16 md:bottom-0 left-0 w-full z-30 glass-panel px-margin-mobile py-4 shadow-[0px_-10px_30px_rgba(31,41,55,0.05)]">
+<div class="max-w-4xl mx-auto flex flex-col gap-3">
+<!-- Suggested Prompts -->
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-highest hover:bg-secondary-container hover:text-on-secondary-container transition-colors font-label-sm text-label-sm text-on-surface border border-surface-stroke">
+<span class="material-symbols-outlined text-[16px]">quiz</span>
+                    Create a quiz
+                </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-highest hover:bg-secondary-container hover:text-on-secondary-container transition-colors font-label-sm text-label-sm text-on-surface border border-surface-stroke">
+<span class="material-symbols-outlined text-[16px]">insights</span>
+                    Summarize my progress
+                </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-highest hover:bg-secondary-container hover:text-on-secondary-container transition-colors font-label-sm text-label-sm text-on-surface border border-surface-stroke">
+<span class="material-symbols-outlined text-[16px]">library_books</span>
+                    Find resources
+                </button>
+</div>
+<!-- Input Field -->
+<div class="relative flex items-end bg-surface-container-lowest rounded-2xl border border-surface-stroke focus-within:border-primary transition-colors shadow-sm overflow-hidden">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none py-4 pl-4 pr-16 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant max-h-32" placeholder="Ask follow-up questions..." rows="1"></textarea>
+<button class="absolute right-2 bottom-2 w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-xl hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+<div class="text-center font-label-sm text-label-sm text-on-surface-variant opacity-60">
+                SkillSwap AI can make mistakes. Verify important information.
+            </div>
+</div>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest dark:bg-inverse-surface flex justify-around items-center px-2 py-3 pb-safe shadow-[0px_-4px_20px_rgba(31,41,55,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">handshake</span>
+<span class="font-label-sm text-label-sm">Matches</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1.5 transition-all duration-300 scale-110" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">chat</span>
+<span class="font-label-sm text-label-sm">Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple streaming text effect simulation
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('ai-response-text');
+            const text = "Here's your personalized 30-day Python learning plan. We'll start with variables and loops...";
+            el.textContent = '';
+            el.classList.add('typing-cursor');
+            
+            let i = 0;
+            const type = () => {
+                if (i < text.length) {
+                    el.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 30 + Math.random() * 40); // Random delay for realistic typing
+                } else {
+                    el.classList.remove('typing-cursor');
+                }
+            };
+            
+            setTimeout(type, 500); // Initial delay
+        });
+    </script>
+</body></html>

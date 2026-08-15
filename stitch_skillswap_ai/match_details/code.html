@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SkillSwap AI - Match Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d9e3f6",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#4edea3",
+                        "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                        "surface-variant": "#d9e3f6",
+                        "on-surface": "#121c2a",
+                        "surface-container-high": "#dee9fc",
+                        "secondary": "#006b5f",
+                        "tertiary": "#00687a",
+                        "surface-tint": "#006c49",
+                        "surface-stroke": "#E5E7EB",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#6df5e1",
+                        "tertiary-container": "#00b2d0",
+                        "outline": "#6c7a71",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-bg": "#F9FAFB",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "on-background": "#121c2a",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-surface": "#27313f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#003f4b",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#00422b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline-variant": "#bbcabf",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e6eeff",
+                        "on-tertiary-fixed": "#001f26",
+                        "on-secondary-container": "#006f64",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d0dbed",
+                        "primary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#71f8e4",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .ai-gradient-border {
+            position: relative;
+        }
+        .ai-gradient-border::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%);
+            border-top-left-radius: inherit;
+            border-top-right-radius: inherit;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .checkmark-draw {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: draw 0.5s ease-out forwards;
+        }
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface font-body-md antialiased min-h-screen flex flex-col items-center">
+<!-- App Container (Mobile Constraint for prototype realism, expands on desktop) -->
+<div class="w-full max-w-[480px] bg-surface-container-lowest min-h-screen shadow-[0px_4px_20px_rgba(31,41,55,0.04)] relative pb-24">
+<!-- TopAppBar (Transactional - Hidden per rules, but requested a 'Match Details' screen so we provide a back button header) -->
+<header class="flex justify-between items-center w-full px-margin-mobile h-16 bg-surface-container-lowest sticky top-0 z-10">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-primary">Match Details</div>
+<button aria-label="More options" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="px-margin-mobile py-stack-md flex flex-col gap-stack-lg">
+<!-- Hero Profile Section -->
+<section class="flex flex-col items-center text-center gap-stack-sm mt-stack-md relative">
+<div class="relative">
+<img class="w-32 h-32 rounded-full object-cover border-4 border-surface-container-lowest shadow-[0px_10px_30px_rgba(31,41,55,0.08)] z-10 relative" data-alt="A high-quality, professional headshot of a friendly young woman with curly hair, smiling warmly in a bright, modern office environment. The lighting is soft and flattering, creating a welcoming and intelligent mood suitable for a premium corporate networking app. The color palette features clean whites and subtle natural tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2HrbLzbhINugazMOgZpaskBUpVHtjEuN9XPjw0KNBl30r1ubh0sdqgOYw6bO1Lv0v5_6zd4P8EETly-CD4kbC7fnh8XilUVGNlwbj_eOEXl0tswiZPK5P5iPNlBBl11sf9iYyDTp-zn8eQOCYm1st-OE6hJvkcZiFTDmb7EPLFqklPhwdypFOLnPQfjHeapQpJp11ujLLetB6dAB2yOhV9YWkYj5KYKgVH0pRlfprAwIZSKY9eXrMCA"/>
+<!-- Match Score Indicator -->
+<div class="absolute -bottom-4 -right-2 bg-surface-container-lowest rounded-full p-1 shadow-md z-20">
+<div class="w-14 h-14 rounded-full flex items-center justify-center relative bg-surface-container-lowest">
+<!-- Circular Progress SVG (Static representation of 94%) -->
+<svg class="w-full h-full absolute top-0 left-0 -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="94, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<span class="font-label-md text-label-md text-primary-container font-bold relative z-10">94%</span>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Sarah Jenkins</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">UX/UI Designer &amp; Python Enthusiast</p>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-sm text-label-sm">San Francisco, CA</span>
+<span class="bg-tertiary-container/20 text-on-tertiary-container px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="star">star</span> Top Rated
+                    </span>
+</div>
+</section>
+<!-- AI Match Rationale (Bento/Card) -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-stroke shadow-[0px_4px_20px_rgba(31,41,55,0.04)] p-stack-md ai-gradient-border relative overflow-hidden">
+<!-- Subtle background mesh for AI feel -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-container opacity-10 rounded-full blur-2xl"></div>
+<div class="flex items-center gap-2 mb-stack-sm relative z-10">
+<span class="material-symbols-outlined text-primary-container" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h2 class="font-headline-md text-headline-md text-on-surface text-lg">Why this is a great match</h2>
+</div>
+<ul class="flex flex-col gap-3 relative z-10">
+<li class="flex items-start gap-3">
+<svg class="w-5 h-5 text-primary-container mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path class="checkmark-draw stagger-1" d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">You can teach Python</span>
+</li>
+<li class="flex items-start gap-3">
+<svg class="w-5 h-5 text-primary-container mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path class="checkmark-draw stagger-2" d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">Sarah wants to learn Python</span>
+</li>
+<li class="flex items-start gap-3">
+<svg class="w-5 h-5 text-primary-container mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path class="checkmark-draw stagger-3" d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">Sarah can teach Graphic Design</span>
+</li>
+<li class="flex items-start gap-3">
+<svg class="w-5 h-5 text-primary-container mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path class="checkmark-draw stagger-4" d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">You want to learn Graphic Design</span>
+</li>
+<li class="flex items-start gap-3">
+<svg class="w-5 h-5 text-primary-container mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path class="checkmark-draw stagger-5" d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-body-md text-body-md text-on-surface">Your availability overlaps</span>
+</li>
+</ul>
+</section>
+<!-- Skills Overview -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Skills Overview</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Sarah's Offerings -->
+<div class="bg-surface-container-lowest border border-surface-stroke rounded-lg p-4 shadow-[0px_4px_20px_rgba(31,41,55,0.02)]">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-2">Can Teach</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-variant text-on-surface px-3 py-1.5 rounded-full font-label-sm text-label-sm">Graphic Design</span>
+<span class="bg-surface-variant text-on-surface px-3 py-1.5 rounded-full font-label-sm text-label-sm">Figma</span>
+<span class="bg-surface-variant text-on-surface px-3 py-1.5 rounded-full font-label-sm text-label-sm">Illustration</span>
+</div>
+</div>
+<!-- Sarah's Needs -->
+<div class="bg-surface-container-lowest border border-surface-stroke rounded-lg p-4 shadow-[0px_4px_20px_rgba(31,41,55,0.02)]">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-2">Wants to Learn</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-secondary-container/30 text-on-secondary-container px-3 py-1.5 rounded-full font-label-sm text-label-sm border border-secondary-container/50">Python</span>
+<span class="bg-surface-variant text-on-surface px-3 py-1.5 rounded-full font-label-sm text-label-sm">Data Analysis</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bio -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Bio</h3>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+                    Hi! I'm a senior product designer looking to level up my technical skills. I've been designing interfaces for 6 years and can help you create stunning, user-friendly layouts in Figma. In return, I'm looking for someone patient to guide me through the basics of Python for data visualization. I learn best through practical, hands-on projects!
+                </p>
+</section>
+</main>
+<!-- Fixed Action Area (Bottom) -->
+<div class="fixed bottom-0 left-0 w-full md:max-w-[480px] md:relative bg-surface-container-lowest border-t border-surface-stroke p-margin-mobile flex flex-col gap-3 shadow-[0px_-4px_20px_rgba(31,41,55,0.04)] z-50">
+<button class="w-full bg-primary-container text-on-primary font-label-md text-label-md h-12 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0px_4px_12px_rgba(16,185,129,0.2)]">
+<span class="material-symbols-outlined text-[20px]" data-icon="swap_horiz">swap_horiz</span>
+                Request Skill Swap
+            </button>
+<button class="w-full bg-transparent border border-tertiary text-tertiary font-label-md text-label-md h-12 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+                Message Sarah
+            </button>
+</div>
+</div>
+</body></html>

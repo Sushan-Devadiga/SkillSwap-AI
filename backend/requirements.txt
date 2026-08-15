@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+supabase
+sentence-transformers
+python-dotenv
+pydantic
+google-generativeai
+slowapi
+pytest
+httpx

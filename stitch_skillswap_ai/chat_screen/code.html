@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>SkillSwap AI - Chat</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from instructions -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container-highest": "#d9e3f6",
+                    "on-secondary-fixed": "#00201c",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#4edea3",
+                    "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                    "surface-variant": "#d9e3f6",
+                    "on-surface": "#121c2a",
+                    "surface-container-high": "#dee9fc",
+                    "secondary": "#006b5f",
+                    "tertiary": "#00687a",
+                    "surface-tint": "#006c49",
+                    "surface-stroke": "#E5E7EB",
+                    "primary-fixed": "#6ffbbe",
+                    "secondary-container": "#6df5e1",
+                    "tertiary-container": "#00b2d0",
+                    "outline": "#6c7a71",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#eff4ff",
+                    "surface-bg": "#F9FAFB",
+                    "on-primary-fixed": "#002113",
+                    "on-tertiary-fixed-variant": "#004e5c",
+                    "tertiary-fixed-dim": "#4cd7f6",
+                    "on-background": "#121c2a",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#10b981",
+                    "on-primary-fixed-variant": "#005236",
+                    "tertiary-fixed": "#acedff",
+                    "inverse-surface": "#27313f",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#003f4b",
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "on-secondary-fixed-variant": "#005048",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#00422b",
+                    "on-surface-variant": "#3c4a42",
+                    "outline-variant": "#bbcabf",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#e6eeff",
+                    "on-tertiary-fixed": "#001f26",
+                    "on-secondary-container": "#006f64",
+                    "inverse-primary": "#4edea3",
+                    "surface-dim": "#d0dbed",
+                    "primary": "#006c49",
+                    "surface": "#f8f9ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-fixed": "#71f8e4",
+                    "background": "#f8f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "stack-sm": "12px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "16px",
+                    "margin-desktop": "48px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-xl": [
+                            "Outfit"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Outfit"
+                    ],
+                    "headline-md": [
+                            "Outfit"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Outfit"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-xl": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "34px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .ai-pulse {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% {
+                border-color: rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                border-color: rgba(6, 182, 212, 1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface font-body-md min-h-screen flex flex-col overflow-hidden">
+<!-- Header / TopAppBar Variation for Chat -->
+<header class="bg-surface-container-lowest border-b border-surface-stroke flex justify-between items-center w-full px-margin-mobile h-16 shrink-0 z-10 shadow-[0px_4px_20px_rgba(31,41,55,0.02)]">
+<div class="flex items-center gap-3">
+<button aria-label="Go back" class="text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<div class="relative">
+<img alt="Sarah's Profile" class="w-10 h-10 rounded-full object-cover border border-surface-stroke" data-alt="A professional headshot of a young woman named Sarah, smiling warmly in a bright, modern cafe setting. Soft natural lighting, shallow depth of field, casual yet polished appearance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh1cXRywU-eMwlNKHzlMbNsGs4Y6SOJuRlmNIc_Pe2HAd4SfPOSTYExzDAqoOLS0_73_g0I2HciBY0jyrOqVKQolpQ7ywFyu6LgEGg1ntIPBjH5Cgo6hwH01K4eUyRV_o4ZflnbAbJTmJFEqDX_W9OfW_-gvygLMuU4a7xgvQqZj1bywDqm6bsrVKnaFEwYfVPgyLqvbQ54PTeeqJEjpOHpjWrJwf135LbcIAC3Vz7a_5HPREBFNMc-A"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary-container rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-[18px] font-semibold text-on-surface leading-tight">Sarah</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Online</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button aria-label="Video Call" class="hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">videocam</span>
+</button>
+<button aria-label="More options" class="hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Chat Area -->
+<main class="flex-1 overflow-y-auto p-margin-mobile flex flex-col gap-stack-md bg-surface-bg pb-32">
+<!-- Date Divider -->
+<div class="flex justify-center w-full">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-lowest px-3 py-1 rounded-full border border-surface-stroke shadow-sm">Today, 10:24 AM</span>
+</div>
+<!-- Match Notification -->
+<div class="w-full flex justify-center my-2">
+<div class="bg-surface-container-low border border-surface-variant rounded-lg px-4 py-3 flex items-center gap-3 max-w-sm shadow-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container text-sm" style="font-variation-settings: 'FILL' 1;">handshake</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">You matched with Sarah!</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Python ↔ UI/UX Design</span>
+</div>
+</div>
+</div>
+<!-- Sarah Message -->
+<div class="flex items-end gap-2 max-w-[85%] self-start">
+<img alt="Sarah" class="w-6 h-6 rounded-full object-cover shrink-0 mb-1" data-alt="A professional headshot of a young woman named Sarah, smiling warmly in a bright, modern cafe setting. Soft natural lighting, shallow depth of field, casual yet polished appearance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgoIzL_lykC3PNUs1JVJ5-s0QZENpZ0mT5ppVcXeOFmTrATW2y2jMmP2HBcsEuc00X3yRyZU1OULybhTlO2nno5PqTMfp5HrF2YnpKMEjmqYzuyYookssrTanbsEAyAJntygVccYZYmY0RQEdL89Uc0WC-71WlosCg1JAUYmxkaKi-5G3yFAHBi5qY4mTqwRVDz-48VJ6xQKR-Q7WHt_hJLdxNE2HIFZSfAV8H4QD_Ve_2Q1Cm3DvIhQ"/>
+<div class="bg-surface-container-lowest border border-surface-stroke rounded-2xl rounded-bl-sm px-4 py-3 shadow-[0px_2px_10px_rgba(31,41,55,0.02)]">
+<p class="font-body-md text-body-md text-on-surface">Hi Alex! I saw our match. I'd love to learn Python from you.</p>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-1 block text-right">10:25 AM</span>
+</div>
+</div>
+<!-- Alex Message -->
+<div class="flex flex-col items-end gap-1 max-w-[85%] self-end">
+<div class="bg-primary text-on-primary rounded-2xl rounded-br-sm px-4 py-3 shadow-[0px_4px_15px_rgba(0,108,73,0.15)]">
+<p class="font-body-md text-body-md">Hey! Definitely. I'm looking to improve my UI/UX skills. Your designs look great.</p>
+<span class="font-label-sm text-[10px] text-on-primary opacity-80 mt-1 block text-right flex items-center justify-end gap-1">
+                    10:28 AM 
+                    <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</span>
+</div>
+</div>
+</main>
+<!-- Bottom Input Area (Fixed) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-surface-stroke z-20 pb-safe shadow-[0px_-4px_20px_rgba(31,41,55,0.04)]">
+<!-- Intelligent Suggestion Bar -->
+<div class="px-margin-mobile py-2 bg-gradient-to-r from-surface-bright to-surface border-b border-surface-stroke flex items-center gap-2 cursor-pointer hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium flex-1">Ask AI to help plan this session</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" style="font-variation-settings: 'FILL' 0;">chevron_right</span>
+</div>
+<!-- Input Bar -->
+<div class="flex items-center gap-2 px-margin-mobile py-3">
+<button aria-label="Attach file" class="text-on-surface-variant hover:text-primary transition-colors shrink-0 p-2 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add_circle</span>
+</button>
+<button aria-label="Schedule Session" class="text-on-surface-variant hover:text-primary transition-colors shrink-0 p-2 rounded-full hover:bg-surface-container-low hidden md:flex">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+</button>
+<div class="flex-1 relative">
+<input class="w-full bg-surface-bg border border-surface-stroke rounded-full pl-4 pr-10 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Message..." type="text"/>
+<button aria-label="Emoji" class="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 0;">mood</span>
+</button>
+</div>
+<button aria-label="Send Message" class="bg-primary hover:bg-primary/90 text-on-primary w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</body></html>

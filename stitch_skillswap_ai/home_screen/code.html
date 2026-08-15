@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SkillSwap AI - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d9e3f6",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#4edea3",
+                        "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                        "surface-variant": "#d9e3f6",
+                        "on-surface": "#121c2a",
+                        "surface-container-high": "#dee9fc",
+                        "secondary": "#006b5f",
+                        "tertiary": "#00687a",
+                        "surface-tint": "#006c49",
+                        "surface-stroke": "#E5E7EB",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#6df5e1",
+                        "tertiary-container": "#00b2d0",
+                        "outline": "#6c7a71",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-bg": "#F9FAFB",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "on-background": "#121c2a",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-surface": "#27313f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#003f4b",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#00422b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline-variant": "#bbcabf",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e6eeff",
+                        "on-tertiary-fixed": "#001f26",
+                        "on-secondary-container": "#006f64",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d0dbed",
+                        "primary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#71f8e4",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .ai-border-gradient {
+            background: linear-gradient(var(--tw-colors-surface-container-lowest), var(--tw-colors-surface-container-lowest)) padding-box,
+                        linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%) border-box;
+            border: 2px solid transparent;
+        }
+        .ai-pulse-dot {
+            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #10B981); }
+            50% { opacity: .5; filter: drop-shadow(0 0 1px #10B981); }
+        }
+        .glass-overlay {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface min-h-screen font-body-md text-body-md pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 bg-surface dark:bg-on-secondary-fixed flex justify-between items-center w-full px-margin-mobile h-16 shadow-sm hidden md:flex z-50 sticky">
+<div class="flex items-center gap-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Professional headshot portrait of a young adult, modern clean light mode styling, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASt9xwrdkdprs6ZnY5yGUMJPYb6XqZV-AskV-0bnnBVtDV6g2hLByyTps9nrw1EcOTbaHHttMXGMnX9wdZ0AwyoaJBrbyoe_fh8oBCc3Wm304lrj963LMCmE1P0VszfMOPH_kGHT7lvvVkGKzrSggMCBnsDSszHkyaaNGNAaG0aH3XngICfP5xZPQbMCuVhkBdgmmlTCm6U39ZpzU9K854Sw8XVYDpDGCqxl7gBN3SzZnZq6AXcEzPlw"/>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">SkillSwap AI</span>
+</div>
+<nav class="flex gap-6">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Discover</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Matches</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Chat</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Profile</a>
+</nav>
+<button class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Mobile Top Header (Non-standard JSON implementation for the 'Good morning' requirement) -->
+<div class="md:hidden flex justify-between items-center w-full px-margin-mobile pt-6 pb-4">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Good morning, Alex</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Professional headshot portrait of a young adult, modern clean light mode styling, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4d9t5cCaCd0V-lxlNvvLdfNRfxueZsOpOzA_66MLikWnVYL4p_2Kc5BqesqDuJXsfpwe5KPSlkQyTeTkf9R7oNsppMU2f4UtqU29a4wUzEfH-Tg58QBzqyJRPaSD0L5nydjMLSf-7Qq3iFJL8aWIUigKceksoBwZFxiZDZBcJPIV_9U11Eo-g5dKj0v2TG_QTpNxmdMX3urkZGk76yE7D9Z2tkqsWP5p_oWPil9Ro7kpK-VEF2QeJQA"/>
+</div>
+</div>
+<!-- Desktop Welcome -->
+<div class="hidden md:block max-w-7xl mx-auto px-margin-desktop pt-8 pb-4">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Good morning, Alex</h1>
+</div>
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-stack-lg">
+<!-- Hero Card -->
+<section class="relative w-full rounded-xl overflow-hidden bg-surface-container-low shadow-[0px_4px_20px_rgba(31,41,55,0.04)] border border-surface-stroke group hover:shadow-[0px_10px_30px_rgba(31,41,55,0.08)] transition-all duration-300">
+<div class="absolute inset-0 z-0 opacity-10">
+<!-- Minimal AI decorative pattern -->
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+<path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--tw-colors-primary)" stroke-width="0.5"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<div class="relative z-10 p-stack-md flex flex-col md:flex-row items-center justify-between gap-stack-md">
+<div class="flex-1">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary-container mb-stack-sm">Learn something new. <br class="hidden md:block"/>Teach something valuable.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">Your expertise is a currency. Connect with peers to exchange knowledge and grow your skills organically.</p>
+</div>
+<div class="w-full md:w-1/3 aspect-video md:aspect-square bg-surface-container-highest rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Abstract 3D illustration of two overlapping transparent geometric shapes, representing knowledge exchange. Bright, corporate modern aesthetic with soft emerald and cyan gradients on a clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUzoxc00tEFhQF_HFmdfEUWXWxndcPqvYUn5WF63rn2teAg4Vn2xFavTYq5N3t0_jnb1Pbp3iauLZ8IDDpcKTQWaSrNMKuUmHbhxsFdgiGvQ9tVZfdGXX90HEvJwyS5KGDND34RQ4xh6sm4x691XkQuf5Xtqhizi7mf70--klZhIfdwSaETaexmWNzoKnMSA2TgWDVhaF-Y8pd6m2_8aqZhGEQCNvpXm10ygiEi5V5uNmBYhEa4_FuVA"/>
+</div>
+</div>
+</section>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: AI Match & Actions -->
+<div class="lg:col-span-8 flex flex-col gap-stack-lg">
+<!-- AI Match of the Day -->
+<section>
+<div class="flex items-center gap-2 mb-stack-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container ai-pulse-dot"></span>
+<h3 class="font-headline-md text-headline-md text-on-surface">AI Match of the Day</h3>
+</div>
+<div class="ai-border-gradient rounded-xl p-stack-md bg-surface-container-lowest shadow-[0px_4px_20px_rgba(31,41,55,0.04)] hover:shadow-[0px_10px_30px_rgba(31,41,55,0.08)] transition-all duration-300 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container opacity-20 blur-3xl rounded-full -mr-10 -mt-10"></div>
+<div class="flex flex-col md:flex-row gap-stack-md relative z-10">
+<div class="flex items-center md:items-start gap-4">
+<img class="w-20 h-20 rounded-full object-cover border-2 border-primary-container" data-alt="Professional profile picture of a young woman named Sarah, smiling gently. Clean white background, soft modern corporate lighting, light mode UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgFmDiz7DwHfJpB6_qwHYqFt4YPHhCEX2j7-IYYDzjUFGzcdSt8ws9ZNwOgMcjZcJD7uThWOe2mgdh2UBCMrMwlAOudNuPLyYnv-lCMfI3FoY3t6_4IjZXXXHph7Z4dWOIKiePOw58x8ce62Rbhn6HdzhcfNKHdCmkMaDXfWd2jOThSrRvY3wlFfh_2wwhjvQydD_ejVkjyCwuMRMxgOtf6-m-tGpcse48lqGEFy8mXmbkUT_Np646-Q"/>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Sarah</h4>
+<div class="flex items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="neurology" data-weight="fill">neurology</span>
+<span class="font-label-md text-label-md font-bold">94% Compatibility</span>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-stack-sm justify-center">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Teaching</span>
+<div class="inline-flex px-3 py-1 bg-surface-container-low border border-surface-stroke rounded-full font-body-sm text-body-sm text-on-surface w-fit">
+                                        Graphic Design
+                                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Wants to Learn</span>
+<div class="inline-flex px-3 py-1 bg-surface-container-low border border-surface-stroke rounded-full font-body-sm text-body-sm text-on-surface w-fit">
+                                        Python
+                                    </div>
+</div>
+</div>
+<div class="flex flex-col justify-end md:justify-center">
+<button class="w-full md:w-auto bg-primary-container text-on-primary px-6 py-3 rounded-lg font-label-md text-label-md hover:bg-opacity-90 transition-all flex items-center justify-center gap-2">
+                                    View Profile
+                                    <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions (Bento-style) -->
+<section>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Quick Actions</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-gutter">
+<button class="bg-surface-container-lowest border border-surface-stroke rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-low hover:border-primary-container transition-all shadow-sm h-32 group">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center">Find a Match</span>
+</button>
+<button class="bg-surface-container-lowest border border-surface-stroke rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-low hover:border-primary-container transition-all shadow-sm h-32 group">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center">Add Skill</span>
+</button>
+<button class="bg-surface-container-lowest border border-surface-stroke rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-low hover:border-primary-container transition-all shadow-sm h-32 group col-span-2 md:col-span-1">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center">Schedule Session</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Right Column: Upcoming Sessions -->
+<div class="lg:col-span-4">
+<section class="bg-surface-container-lowest border border-surface-stroke rounded-xl p-stack-md shadow-sm h-full flex flex-col">
+<div class="flex justify-between items-center mb-stack-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">Upcoming Sessions</h3>
+<button class="text-primary-container hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+<div class="flex flex-col gap-stack-sm flex-1">
+<!-- Session Item 1 -->
+<div class="flex items-start gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-surface-stroke cursor-pointer">
+<div class="flex flex-col items-center justify-center bg-surface-variant text-on-surface rounded-lg p-2 min-w-[50px]">
+<span class="font-label-sm text-label-sm uppercase">Tom</span>
+<span class="font-headline-md text-headline-md">14</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-on-surface">Python Basics</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">with David</p>
+<div class="flex items-center gap-1 text-primary mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="videocam">videocam</span>
+<span class="font-label-sm text-label-sm">Zoom</span>
+</div>
+</div>
+</div>
+<!-- Empty State (if needed, keeping it minimal) -->
+<div class="flex-1 flex flex-col items-center justify-center py-8 text-center opacity-50 mt-auto">
+<span class="material-symbols-outlined text-[48px] text-outline mb-2" data-icon="event_busy">event_busy</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">No more upcoming sessions</p>
+</div>
+</div>
+<button class="w-full mt-stack-md py-2 text-primary font-label-md text-label-md hover:bg-surface-variant rounded-lg transition-colors border border-transparent hover:border-primary-container">
+                        View Full Calendar
+                    </button>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface-container-lowest dark:bg-inverse-surface shadow-[0px_-4px_20px_rgba(31,41,55,0.04)] rounded-t-xl">
+<button class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1.5 transition-all duration-300 scale-110">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-sm text-label-sm mt-1">Discover</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+<span class="font-label-sm text-label-sm mt-1">Matches</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="font-label-sm text-label-sm mt-1">Chat</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1.5 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

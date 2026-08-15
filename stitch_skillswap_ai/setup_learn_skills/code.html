@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>What do you want to learn? - SkillSwap AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d9e3f6",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#4edea3",
+                        "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                        "surface-variant": "#d9e3f6",
+                        "on-surface": "#121c2a",
+                        "surface-container-high": "#dee9fc",
+                        "secondary": "#006b5f",
+                        "tertiary": "#00687a",
+                        "surface-tint": "#006c49",
+                        "surface-stroke": "#E5E7EB",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#6df5e1",
+                        "tertiary-container": "#00b2d0",
+                        "outline": "#6c7a71",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-bg": "#F9FAFB",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "on-background": "#121c2a",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-surface": "#27313f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#003f4b",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#00422b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline-variant": "#bbcabf",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e6eeff",
+                        "on-tertiary-fixed": "#001f26",
+                        "on-secondary-container": "#006f64",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d0dbed",
+                        "primary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#71f8e4",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .chip {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .chip:active {
+            transform: scale(0.95);
+        }
+        .chip.selected {
+            background-color: theme('colors.secondary-container');
+            color: theme('colors.on-secondary-container');
+            border-color: transparent;
+        }
+        
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface h-full flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation for Onboarding (Simplified, no global nav elements) -->
+<header class="w-full flex items-center justify-between px-margin-mobile md:px-margin-desktop h-16 bg-surface-container-lowest sticky top-0 z-10">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary-container">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Step 2 of 3</span>
+<!-- Placeholder for symmetry -->
+<div class="w-10 h-10"></div>
+</header>
+<!-- Progress Indicator -->
+<div class="w-full h-1 bg-surface-container-highest">
+<div class="h-full bg-primary-container progress-bar-fill" style="width: 66%;"></div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center px-margin-mobile md:px-margin-desktop py-stack-lg max-w-[1280px] mx-auto w-full">
+<div class="w-full max-w-2xl flex flex-col gap-stack-md">
+<!-- Header Section -->
+<div class="text-center md:text-left flex flex-col gap-stack-sm mb-stack-md">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-xl md:text-headline-xl text-on-surface">
+                    What do you want to learn?
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                    We'll find matches based on these interests. Select as many as you like.
+                </p>
+</div>
+<!-- Search Bar for Skills -->
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full h-14 pl-12 pr-4 rounded-xl border border-surface-stroke bg-surface-container-lowest font-body-md text-body-md text-on-surface placeholder:text-outline-variant focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:outline-none transition-shadow shadow-sm" placeholder="Search for skills (e.g., Python, Yoga, Marketing)" type="text"/>
+</div>
+<!-- AI Suggestion Container -->
+<div class="w-full rounded-xl p-[2px] bg-gradient-to-r from-[#10B981] via-[#14B8A6] to-[#06B6D4] shadow-sm mb-stack-sm">
+<div class="bg-surface-container-lowest rounded-[10px] p-stack-sm flex flex-col gap-stack-sm">
+<div class="flex items-center gap-2 text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">AI Suggested for you</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="chip selected flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-secondary-container text-on-secondary-container">
+                            Machine Learning
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            Data Visualization
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category Groups -->
+<div class="flex flex-col gap-stack-md">
+<!-- Category 1 -->
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface">Technology &amp; Programming</h3>
+<div class="flex flex-wrap gap-2">
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            React.js
+                        </button>
+<button class="chip selected flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-secondary-container text-on-secondary-container">
+                            Python
+                        </button>
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            UI/UX Design
+                        </button>
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            Cloud Computing
+                        </button>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface">Languages</h3>
+<div class="flex flex-wrap gap-2">
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            Spanish
+                        </button>
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            Mandarin
+                        </button>
+<button class="chip flex items-center gap-2 px-4 py-2 rounded-full border border-surface-stroke font-body-md text-body-md bg-surface-container-lowest text-on-surface hover:bg-surface-container-low">
+                            French
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Area (Sticky) -->
+<div class="w-full bg-surface-container-lowest border-t border-surface-stroke p-margin-mobile md:px-margin-desktop flex justify-center sticky bottom-0 z-20 shadow-[0px_-4px_20px_rgba(31,41,55,0.04)]">
+<div class="w-full max-w-2xl flex justify-between items-center">
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-4 py-3">
+                Skip for now
+            </button>
+<button class="bg-primary-container text-on-primary hover:bg-primary transition-colors font-label-md text-label-md px-8 py-3 rounded-full flex items-center gap-2 shadow-sm">
+                Continue
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<script>
+        // Simple interaction for chips
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                this.classList.toggle('selected');
+                
+                if (this.classList.contains('selected')) {
+                    this.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'hover:bg-surface-container-low');
+                    this.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                    
+                    // Toggle icon if present
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    if (icon && icon.textContent === 'add') {
+                        icon.textContent = 'check';
+                    }
+                } else {
+                    this.classList.add('bg-surface-container-lowest', 'text-on-surface', 'hover:bg-surface-container-low');
+                    this.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+                    
+                    // Toggle icon if present
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    if (icon && icon.textContent === 'check') {
+                        icon.textContent = 'add';
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

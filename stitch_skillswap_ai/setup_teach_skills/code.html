@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Setup - Skills I Can Teach | SkillSwap AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container-highest": "#d9e3f6",
+                      "on-secondary-fixed": "#00201c",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#4edea3",
+                      "ai-glow": "linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%)",
+                      "surface-variant": "#d9e3f6",
+                      "on-surface": "#121c2a",
+                      "surface-container-high": "#dee9fc",
+                      "secondary": "#006b5f",
+                      "tertiary": "#00687a",
+                      "surface-tint": "#006c49",
+                      "surface-stroke": "#E5E7EB",
+                      "primary-fixed": "#6ffbbe",
+                      "secondary-container": "#6df5e1",
+                      "tertiary-container": "#00b2d0",
+                      "outline": "#6c7a71",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#eff4ff",
+                      "surface-bg": "#F9FAFB",
+                      "on-primary-fixed": "#002113",
+                      "on-tertiary-fixed-variant": "#004e5c",
+                      "tertiary-fixed-dim": "#4cd7f6",
+                      "on-background": "#121c2a",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#10b981",
+                      "on-primary-fixed-variant": "#005236",
+                      "tertiary-fixed": "#acedff",
+                      "inverse-surface": "#27313f",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#003f4b",
+                      "secondary-fixed-dim": "#4fdbc8",
+                      "on-secondary-fixed-variant": "#005048",
+                      "on-primary": "#ffffff",
+                      "on-primary-container": "#00422b",
+                      "on-surface-variant": "#3c4a42",
+                      "outline-variant": "#bbcabf",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#e6eeff",
+                      "on-tertiary-fixed": "#001f26",
+                      "on-secondary-container": "#006f64",
+                      "inverse-primary": "#4edea3",
+                      "surface-dim": "#d0dbed",
+                      "primary": "#006c49",
+                      "surface": "#f8f9ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-fixed": "#71f8e4",
+                      "background": "#f8f9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "8px",
+                      "stack-sm": "12px",
+                      "stack-md": "24px",
+                      "stack-lg": "48px",
+                      "gutter": "16px",
+                      "margin-desktop": "48px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "headline-xl": ["Outfit"],
+                      "body-sm": ["Inter"],
+                      "headline-lg-mobile": ["Outfit"],
+                      "headline-md": ["Outfit"],
+                      "label-sm": ["Inter"],
+                      "headline-lg": ["Outfit"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            },
+          }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom Chip Animations */
+        .chip-interactive {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .chip-interactive:active {
+            transform: scale(0.95);
+        }
+
+        .chip-selected {
+            background-color: theme('colors.secondary-container');
+            color: theme('colors.on-secondary-container');
+            border-color: theme('colors.secondary-container');
+        }
+
+        .ai-pulse {
+            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+        }
+        
+        /* Progress Bar */
+        .progress-bar-fill {
+            transition: width 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-surface-bg text-on-surface font-body-md h-full flex flex-col antialiased selection:bg-primary-container selection:text-on-primary">
+<!-- Top Navigation (Onboarding flow - no main nav tabs, just a back button and brand) -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 bg-surface-bg sticky top-0 z-40">
+<button aria-label="Go back" class="p-2 -ml-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-primary">
+            SkillSwap AI
+        </div>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop pb-stack-lg max-w-[800px] mx-auto">
+<!-- Onboarding Progress -->
+<div class="w-full max-w-md mt-stack-sm mb-stack-md">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant mb-2">
+<span>Step 1 of 3</span>
+<span>Profile Setup</span>
+</div>
+<div class="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container progress-bar-fill rounded-full" style="width: 33%;"></div>
+</div>
+</div>
+<!-- Header Section -->
+<div class="text-center w-full mb-stack-lg mt-stack-sm">
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-stack-sm md:font-headline-xl font-headline-lg-mobile md:text-headline-xl text-headline-lg-mobile">
+                What can you teach?
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">
+                Select skills you are proficient in to help others. Our AI uses this to match you with eager learners.
+            </p>
+</div>
+<!-- Search Bar Container -->
+<div class="w-full max-w-2xl mb-stack-lg relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+</div>
+<input class="block w-full pl-12 pr-4 py-4 bg-surface-container-lowest border border-surface-stroke rounded-xl font-body-md text-body-md text-on-surface placeholder-outline-variant focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all shadow-[0px_4px_20px_rgba(31,41,55,0.02)]" placeholder="Search for skills (e.g. 'Python', 'UX Design')..." type="text"/>
+<!-- AI Suggestion Indicator -->
+<div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-surface-stroke backdrop-blur-sm">
+<div class="w-2 h-2 rounded-full bg-primary-container ai-pulse"></div>
+<span class="font-label-sm text-label-sm text-primary">AI Suggestions Active</span>
+</div>
+</div>
+</div>
+<!-- Skills Categories Bento/Grid -->
+<div class="w-full max-w-2xl flex flex-col gap-stack-md pb-24">
+<!-- Category 1: Programming (AI Suggested) -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-stroke shadow-[0px_4px_20px_rgba(31,41,55,0.04)] overflow-hidden relative">
+<!-- AI Top Gradient Border -->
+<div class="absolute top-0 left-0 right-0 h-[2px]" style="background: var(--tw-gradient-stops); background-image: linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #06B6D4 100%);"></div>
+<div class="p-6">
+<div class="flex items-center gap-2 mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Programming &amp; Tech</h2>
+<span class="material-symbols-outlined text-primary-container text-[20px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                            Python
+                        </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                            Java
+                        </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                            React.js
+                        </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                            Data Science
+                        </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                            Machine Learning
+                        </button>
+</div>
+</div>
+</div>
+<!-- Category 2: Design -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-stroke shadow-[0px_4px_20px_rgba(31,41,55,0.04)] p-6">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Design &amp; Creative</h2>
+<div class="flex flex-wrap gap-3">
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        UI/UX Design
+                    </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Photography
+                    </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Illustration
+                    </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Video Editing
+                    </button>
+</div>
+</div>
+<!-- Category 3: Business -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-stroke shadow-[0px_4px_20px_rgba(31,41,55,0.04)] p-6">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Business &amp; Marketing</h2>
+<div class="flex flex-wrap gap-3">
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Digital Marketing
+                    </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Public Speaking
+                    </button>
+<button class="chip-interactive px-4 py-2 rounded-full border border-surface-stroke bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low focus:outline-none" onclick="toggleChip(this)">
+                        Project Management
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar (Fixed) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-surface-stroke shadow-[0px_-10px_30px_rgba(31,41,55,0.04)] z-50 px-margin-mobile md:px-margin-desktop py-4 pb-safe flex justify-center">
+<div class="w-full max-w-[800px] flex justify-end">
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-8 py-3 rounded-full hover:opacity-90 transition-opacity flex items-center gap-2 shadow-md">
+                Continue
+                <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Script for Chip Interaction -->
+<script>
+        function toggleChip(button) {
+            button.classList.toggle('chip-selected');
+            
+            // Re-apply base styles if not selected
+            if(button.classList.contains('chip-selected')) {
+                button.classList.remove('text-on-surface-variant', 'bg-surface-container-lowest', 'border-surface-stroke');
+            } else {
+                button.classList.add('text-on-surface-variant', 'bg-surface-container-lowest', 'border-surface-stroke');
+            }
+        }
+    </script>
+</body></html>
