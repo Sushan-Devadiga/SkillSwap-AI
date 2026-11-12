@@ -5,6 +5,8 @@ import '../theme/app_colors.dart';
 import '../widgets/buttons.dart';
 import '../services/session_service.dart';
 import '../services/discover_service.dart';
+import '../providers/session_provider.dart';
+import 'home_screen.dart';
 
 class ScheduleSessionScreen extends ConsumerStatefulWidget {
   final String peerName;
@@ -129,28 +131,57 @@ class _ScheduleSessionScreenState extends ConsumerState<ScheduleSessionScreen> {
                         
                         final sessionTime = DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day, h, m);
                         
-                        // Get peer ID
+                        // Get peer ID (supports username or UUID with case-insensitive match)
                         final discoverService = ref.read(discoverServiceProvider);
-                        final peerData = await discoverService.getProfileByUsername(widget.peerName);
+                        final peerData = await discoverService.getProfile(widget.peerName);
                         
                         if (peerData != null) {
                           final sessionService = ref.read(sessionServiceProvider);
+                          final peerDisplayName = peerData['full_name'] ?? widget.peerName;
                           final success = await sessionService.proposeSession(
                             peerId: peerData['id'],
-                            title: 'Skill Swap with ${widget.peerName}',
+                            title: 'Skill Swap with $peerDisplayName',
                             time: sessionTime,
                             durationMinutes: 45,
                           );
                           
                           if (success && mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Session proposed!')));
+                            // Instantly invalidate providers so Active Swaps & Home screen update with zero delay
+                            ref.invalidate(activeSwapsProvider);
+                            ref.invalidate(upcomingSessionsProvider);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Session scheduled successfully!'),
+                                backgroundColor: AppColors.primaryContainer,
+                              ),
+                            );
                             context.pop();
                           } else if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to propose session.')));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not schedule session. Please try again.'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
                           }
+                        } else if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Could not find profile for "${widget.peerName}".'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
                         }
                       } catch (e) {
-                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('An error occurred.')));
+                         debugPrint('Schedule session error: $e');
+                         if (mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(
+                               content: Text('Error scheduling session: $e'),
+                               backgroundColor: AppColors.error,
+                             ),
+                           );
+                         }
                       } finally {
                         if (mounted) setState(() => _isSubmitting = false);
                       }

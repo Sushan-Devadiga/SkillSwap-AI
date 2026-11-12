@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,7 +13,7 @@ class StorageService {
 
   StorageService(this._client);
 
-  Future<String?> uploadAvatar(XFile file, String userId) async {
+  Future<String?> uploadAvatar(XFile file, String userId, {bool updateProfileTable = true}) async {
     try {
       final fileExt = file.name.split('.').last;
       final fileName = 'profile.$fileExt';
@@ -33,10 +32,12 @@ class StorageService {
 
       final imageUrl = _client.storage.from('avatars').getPublicUrl(filePath);
       
-      // Update the profile table
-      await _client.from('profiles').update({
-        'avatar_url': imageUrl,
-      }).eq('id', userId);
+      // Update the profile table only if requested
+      if (updateProfileTable) {
+        await _client.from('profiles').update({
+          'avatar_url': imageUrl,
+        }).eq('id', userId);
+      }
       
       return imageUrl;
     } catch (e) {

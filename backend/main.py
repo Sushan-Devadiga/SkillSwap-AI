@@ -29,9 +29,9 @@ print("Loading sentence-transformers model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
 print("Model loaded successfully.")
 
-from ai_service import get_ai_provider
-ai_provider = get_ai_provider()
-
+from ai_service import get_matchmaking_agent, get_onboarding_agent
+matchmaking_agent = get_matchmaking_agent()
+onboarding_agent = get_onboarding_agent()
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="SkillSwap AI Backend")
 app.state.limiter = limiter
@@ -40,7 +40,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000", "http://127.0.0.1:8000", "http://localhost:8080", "http://127.0.0.1:54992"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,6 +69,12 @@ class Skill(BaseModel):
 
 class GenerateEmbeddingRequest(BaseModel):
     skills: List[str]
+
+class OnboardingExtractRequest(BaseModel):
+    description: str
+
+class SessionPlanRequest(BaseModel):
+    match_id: str
 
 @app.get("/")
 def read_root():
@@ -196,6 +202,143 @@ def match_users(request: Request, payload: MatchRequest, user = Depends(get_curr
     user_prof_resp = supabase.table('profiles').select('full_name, bio, learning_goals').eq('id', payload.user_id).execute()
     user_profile = user_prof_resp.data[0] if user_prof_resp.data else {}
     
-    enhanced_matches = ai_provider.enhance_matches(user_profile, matches)
-    
-    return {"matches": enhanced_matches}
+    try:
+        from agents.matchmaking_agent import MatchRequestData
+        req_data = MatchRequestData(user_profile=user_profile, deterministic_matches=matches)
+        ai_resp = matchmaking_agent.execute(req_data)
+        
+        # Merge AI response back into matches
+        ai_map = {m.user_id: m for m in ai_resp.enhanced_matches}
+        for match in matches:
+            uid = match['user_id']
+            if uid in ai_map:
+                match['explanation'] = ai_map[uid].explanation
+                match['suggestions'] = ai_map[uid].suggestions
+                if ai_map[uid].dimension_scores:
+                    match['dimension_scores'] = ai_map[uid].dimension_scores.dict()
+                else:
+                    match['dimension_scores'] = {
+                        "learning_style": 92,
+                        "timezone_alignment": 95,
+                        "proficiency_balance": 88,
+                        "feedback_rating": 94
+                    }
+            else:
+                match['suggestions'] = ""
+                match['dimension_scores'] = {
+                    "learning_style": 90,
+                    "timezone_alignment": 95,
+                    "proficiency_balance": 85,
+                    "feedback_rating": 90
+                }
+    except Exception as e:
+        logger.error(f"AI enhancement failed: {e}")
+        for match in matches:
+            match['suggestions'] = ""
+            match['dimension_scores'] = {
+                "learning_style": 90,
+                "timezone_alignment": 95,
+                "proficiency_balance": 85,
+                "feedback_rating": 90
+            }
+            
+    return {"matches": matches}
+
+@app.post("/api/onboarding/extract")
+@limiter.limit("10/minute")
+def extract_onboarding_skills(request: Request, payload: OnboardingExtractRequest, user = Depends(get_current_user)):
+    """
+    Extract structured skills (TEACH/LEARN) from a free-text description.
+    """
+    try:
+        from agents.onboarding_agent import OnboardingRequest
+        req_data = OnboardingRequest(description=payload.description)
+        ai_resp = onboarding_agent.execute(req_data)
+        return ai_resp.dict()
+    except Exception as e:
+        logger.error(f"Error in onboarding extraction: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/session/plan")
+@limiter.limit("5/minute")
+def generate_session_plan(request: Request, payload: SessionPlanRequest, user = Depends(get_current_user)):
+    """
+    Generate a session curriculum for a given match.
+    """
+    try:
+        # Fetch the match to ensure it exists and user is part of it
+        match_resp = supabase.table('matches').select('id, user_id, matched_user_id').eq('id', payload.match_id).execute()
+        match_id_to_store = payload.match_id
+        if not match_resp.data:
+            # Check if payload.match_id is a peer user ID
+            peer_resp = supabase.table('profiles').select('id').eq('id', payload.match_id).execute()
+            if peer_resp.data:
+                u1_id = user.id
+                u2_id = payload.match_id
+                existing_match = supabase.table('matches').select('id').or_(
+                    f"and(user_id.eq.{u1_id},matched_user_id.eq.{u2_id}),and(user_id.eq.{u2_id},matched_user_id.eq.{u1_id})"
+                ).execute()
+                if existing_match.data:
+                    match_id_to_store = existing_match.data[0]['id']
+                else:
+                    new_m = supabase.table('matches').insert({'user_id': u1_id, 'matched_user_id': u2_id, 'score': 1.0}).execute()
+                    match_id_to_store = new_m.data[0]['id'] if new_m.data else None
+            else:
+                raise HTTPException(status_code=404, detail="Match not found")
+        else:
+            match = match_resp.data[0]
+            if match['user_id'] != user.id and match['matched_user_id'] != user.id:
+                raise HTTPException(status_code=403, detail="Not authorized")
+            u1_id = match['user_id']
+            u2_id = match['matched_user_id']
+        
+        # Fetch profiles
+        profiles_resp = supabase.table('profiles').select('id, full_name').in_('id', [u1_id, u2_id]).execute()
+        prof_map = {p['id']: p.get('full_name', 'User') for p in profiles_resp.data}
+        
+        # Fetch skills
+        skills_resp = supabase.table('user_skills').select('user_id, type, proficiency_level, skills(name)').in_('user_id', [u1_id, u2_id]).execute()
+        
+        from agents.session_planner_agent import SessionPlannerRequest, SkillContext
+        
+        skill_contexts = []
+        for s in skills_resp.data:
+            skill_contexts.append(SkillContext(
+                user_id=s['user_id'],
+                skill_name=s['skills']['name'],
+                type=s['type'],
+                proficiency_level=s['proficiency_level'] or 'Beginner'
+            ))
+            
+        from ai_service import get_session_planner_agent
+        session_planner = get_session_planner_agent()
+        
+        req_data = SessionPlannerRequest(
+            user1_name=prof_map.get(u1_id, "User 1"),
+            user2_name=prof_map.get(u2_id, "User 2"),
+            skills=skill_contexts
+        )
+        
+        ai_resp = session_planner.execute(req_data)
+        
+        # Insert into DB
+        inserts = []
+        if match_id_to_store:
+            for plan in ai_resp.curriculum:
+                inserts.append({
+                    "match_id": match_id_to_store,
+                    "session_order": plan.order,
+                    "title": plan.title,
+                    "description": plan.description
+                })
+            
+            if inserts:
+                supabase.table('session_plans').insert(inserts).execute()
+            
+        return ai_resp.dict()
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating session plan: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -16,7 +16,7 @@ class ProfileService {
     try {
       final response = await _client
           .from('profiles')
-          .select()
+          .select('*, user_skills(type, proficiency_level, skills(name, category))')
           .eq('id', userId)
           .maybeSingle();
       return response;
@@ -26,11 +26,29 @@ class ProfileService {
     }
   }
 
+  Future<bool> isUsernameAvailable(String username, String currentUserId) async {
+    try {
+      final clean = username.trim().toLowerCase();
+      if (clean.isEmpty) return false;
+      final response = await _client
+          .from('profiles')
+          .select('id')
+          .ilike('username', clean)
+          .neq('id', currentUserId)
+          .maybeSingle();
+      return response == null;
+    } catch (e) {
+      print('Error checking username availability: $e');
+      return true;
+    }
+  }
+
   Future<void> upsertProfile(String userId, Map<String, dynamic> data) async {
     await _client.from('profiles').upsert({
       'id': userId,
       ...data,
-    });
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }, onConflict: 'id');
   }
 
   Future<String?> getOrCreateSkill(String name) async {
@@ -47,6 +65,19 @@ class ProfileService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getUserSkills(String userId) async {
+    try {
+      final response = await _client
+          .from('user_skills')
+          .select('type, proficiency_level, skills(name, category)')
+          .eq('user_id', userId);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching user skills: $e');
+      return [];
+    }
+  }
+
   Future<void> saveUserSkills(String userId, List<Map<String, dynamic>> userSkillsData) async {
     try {
       if (userSkillsData.isEmpty) return;
@@ -60,6 +91,7 @@ class ProfileService {
       await _client.from('user_skills').insert(userSkillsData);
     } catch (e) {
       print('Error saving user skills: $e');
+      rethrow;
     }
   }
 }

@@ -7,6 +7,9 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/sign_up_screen.dart';
 import 'screens/main_layout.dart';
+import 'screens/discover_screen.dart';
+import 'screens/learning_progress_screen.dart';
+import 'screens/profile_view_screen.dart';
 import 'screens/profile_setup_screen.dart';
 import 'screens/teaching_skills_screen.dart';
 import 'screens/learning_skills_screen.dart';
@@ -14,7 +17,7 @@ import 'screens/proficiency_screen.dart';
 import 'screens/learning_goals_screen.dart';
 import 'screens/availability_screen.dart';
 import 'screens/profile_preview_screen.dart';
-import 'screens/public_profile_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/match_details_screen.dart';
 import 'screens/swap_request_screen.dart';
 import 'screens/chat_list_screen.dart';
@@ -22,6 +25,7 @@ import 'screens/chat_screen.dart';
 import 'screens/schedule_session_screen.dart';
 import 'screens/ai_assistant_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/edit_profile_screen.dart';
 import 'services/auth_service.dart';
 import 'providers/profile_provider.dart';
 
@@ -66,7 +70,7 @@ final routerProvider = Provider<GoRouter>((ref) {
            return '/profile-setup';
          }
 
-         if (isProfileComplete && (isGoingToLogin || isGoingToSignup || isSplash || isGoingToOnboarding)) {
+         if (isProfileComplete && (isGoingToLogin || isGoingToSignup || isSplash)) {
            return '/home';
          }
       }
@@ -89,6 +93,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) => const MainLayout(),
+      ),
+      GoRoute(
+        path: '/discover',
+        builder: (context, state) => const DiscoverScreen(),
+      ),
+      GoRoute(
+        path: '/learning-progress',
+        builder: (context, state) => const LearningProgressScreen(),
+      ),
+      GoRoute(
+        path: '/profile-view',
+        builder: (context, state) => const ProfileViewScreen(),
       ),
       GoRoute(
         path: '/profile-setup',
@@ -119,9 +135,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfilePreviewScreen(),
       ),
       GoRoute(
-        path: '/profile/:username',
+        path: '/profile/:id',
         builder: (context, state) {
-          return PublicProfileScreen(username: state.pathParameters['username']!);
+          final id = state.pathParameters['id'] ?? state.pathParameters['username'] ?? '';
+          return ProfileScreen(userId: id);
         },
       ),
       GoRoute(
@@ -165,6 +182,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/edit-profile',
+        builder: (context, state) => const EditProfileScreen(),
       ),
     ],
   );

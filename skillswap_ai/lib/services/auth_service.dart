@@ -32,17 +32,6 @@ class AuthService {
       data: {'full_name': fullName},
     );
     
-    if (response.user != null) {
-      try {
-        await _client.from('profiles').upsert({
-          'id': response.user!.id,
-          'full_name': fullName,
-        });
-      } catch (e) {
-        print('Warning: Failed to create profile during signup: $e');
-      }
-    }
-    
     return response;
   }
 

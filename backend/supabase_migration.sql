@@ -7,10 +7,13 @@
 -- 1. PROFILES: Safe alteration to add missing fields
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS username text UNIQUE,
+  ADD COLUMN IF NOT EXISTS bio text,
+  ADD COLUMN IF NOT EXISTS location text,
   ADD COLUMN IF NOT EXISTS timezone text,
   ADD COLUMN IF NOT EXISTS experience_level text,
   ADD COLUMN IF NOT EXISTS learning_goals text[],
   ADD COLUMN IF NOT EXISTS availability text,
+  ADD COLUMN IF NOT EXISTS fcm_token text,
   ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone default timezone('utc'::text, now());
 
 -- 2. SKILLS: Safe alteration
@@ -275,7 +278,10 @@ CREATE POLICY "Users can view participants of their sessions."
 
 DROP POLICY IF EXISTS "Users can manage their participation." ON session_participants;
 CREATE POLICY "Users can manage their participation." 
-  ON session_participants FOR ALL USING (auth.uid() = participant_id);
+  ON session_participants FOR ALL USING (
+    auth.uid() = participant_id OR
+    EXISTS (SELECT 1 FROM sessions WHERE id = session_id AND organizer_id = auth.uid())
+  );
 
 -- 11. Exchange History: Viewable by provider or receiver
 DROP POLICY IF EXISTS "Users can view their exchange history." ON exchange_history;
@@ -352,3 +358,94 @@ CREATE POLICY "Users can delete their own avatar"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ==============================================================================
+-- 11. SESSION PLANS (Multi-Agent System)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.session_plans (
+  id uuid default gen_random_uuid() primary key,
+  match_id uuid references public.matches(id) on delete cascade,
+  session_order int not null,
+  title text not null,
+  description text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+ALTER TABLE public.session_plans ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view session plans for their matches"
+  ON public.session_plans FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.matches m
+      WHERE m.id = session_plans.match_id
+      AND (m.user_id = auth.uid() OR m.matched_user_id = auth.uid())
+    )
+  );
+
+CREATE POLICY "Users can insert session plans for their matches"
+  ON public.session_plans FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.matches m
+      WHERE m.id = match_id
+      AND (m.user_id = auth.uid() OR m.matched_user_id = auth.uid())
+    )
+  );
+
+-- ==============================================================================
+-- 12. TIME TOKEN ECONOMY & LEDGER (1 Hour = 1 Token)
+-- ==============================================================================
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS time_tokens int DEFAULT 3,
+  ADD COLUMN IF NOT EXISTS learning_style text DEFAULT 'Visual';
+
+CREATE TABLE IF NOT EXISTS public.token_transactions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  amount int not null, -- positive for earned/bonus, negative for spent
+  transaction_type text check (transaction_type in ('welcome_bonus', 'earned_teaching', 'spent_learning', 'swap_reward', 'adjustment')) not null,
+  description text not null,
+  session_id uuid references public.sessions(id) on delete set null,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+ALTER TABLE public.token_transactions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own token transactions"
+  ON public.token_transactions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own token transactions"
+  ON public.token_transactions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- ==============================================================================
+-- 13. BLOCKCHAIN-BACKED VERIFIED CREDENTIALS (BADGES)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.verified_credentials (
+  id uuid default gen_random_uuid() primary key,
+  learner_id uuid references public.profiles(id) on delete cascade not null,
+  mentor_id uuid references public.profiles(id) on delete set null,
+  session_id uuid references public.sessions(id) on delete set null,
+  skill_name text not null,
+  hours_completed numeric(4,1) default 1.0,
+  verification_hash text not null, -- Cryptographic SHA-256 tamper-proof credential hash
+  badge_tier text default 'Verified Novice' check (badge_tier in ('Verified Novice', 'Intermediate Practitioner', 'Advanced Specialist', 'Master Mentor')),
+  metadata jsonb default '{}'::jsonb,
+  issued_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+ALTER TABLE public.verified_credentials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view verified credentials"
+  ON public.verified_credentials FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can create verified credentials"
+  ON public.verified_credentials FOR INSERT
+  WITH CHECK (auth.uid() = learner_id OR auth.uid() = mentor_id);
+

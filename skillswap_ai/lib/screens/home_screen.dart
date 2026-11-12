@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
-import '../widgets/cards.dart';
+import '../theme/app_typography.dart';
+import '../widgets/shadcn_ui.dart';
 import '../services/auth_service.dart';
-import '../widgets/buttons.dart';
-import '../services/discover_service.dart';
 import '../services/stats_service.dart';
 import '../services/session_service.dart';
 import '../services/notification_service.dart';
 import '../services/api_service.dart';
+import '../services/token_service.dart';
 import '../providers/profile_provider.dart';
+import '../providers/navigation_provider.dart';
+import '../providers/session_provider.dart';
 
 final userStatsProvider = FutureProvider.autoDispose<Map<String, int>>((ref) async {
   return ref.watch(statsServiceProvider).getUserStats();
 });
 
-final upcomingSessionsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  return ref.watch(sessionServiceProvider).getUpcomingSessions();
-});
+// Reuse the centralized activeSwapsProvider for instant synchronized updates
+final upcomingSessionsProvider = activeSwapsProvider;
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -45,841 +49,1411 @@ class HomeScreen extends ConsumerWidget {
     final sessions = sessionsAsync.value ?? [];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB), // Very light blue/gray background
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primaryContainer.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.sync_alt, color: AppColors.primaryContainer, size: 20),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'SkillSwap AI',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-          ],
-        ),
-        actions: [
-          Consumer(
-            builder: (context, ref, child) {
-              final unreadCount = ref.watch(unreadNotificationCountProvider).value ?? 0;
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: unreadCount > 0,
-                  label: Text('$unreadCount'),
-                  child: const Icon(Icons.notifications_outlined, color: AppColors.onSurface),
-                ),
-                onPressed: () => context.push('/notifications'),
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: PopupMenuButton<String>(
-              offset: const Offset(0, 48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              tooltip: 'Profile Menu',
-              onSelected: (value) {
-                switch (value) {
-                  case 'profile':
+      backgroundColor: AppColors.surfaceBg,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: AppColors.surfaceBg.withOpacity(0.9),
+            pinned: true,
+            elevation: 0,
+            title: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
                     final currentUsername = ref.read(userProfileProvider).value?.username;
                     if (currentUsername != null && currentUsername.isNotEmpty) {
-                      context.push('/profile/$currentUsername');
+                      ref.read(mainNavIndexProvider.notifier).setIndex(4);
                     } else {
                       context.push('/profile-setup');
                     }
-                    break;
-                  case 'notifications':
-                    context.push('/notifications');
-                    break;
-                  case 'settings':
-                    // Handle settings tap
-                    break;
-                  case 'logout':
-                    ref.read(authServiceProvider).signOut();
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'profile',
-                  child: Row(
-                    children: [
-                      Icon(Icons.person_outline, size: 20, color: AppColors.onSurfaceVariant),
-                      const SizedBox(width: 12),
-                      const Text('View Profile', style: TextStyle(fontWeight: FontWeight.w500)),
-                    ],
+                  },
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppColors.primaryContainer,
+                    backgroundImage: userProfile?.avatarUrl != null && userProfile!.avatarUrl.isNotEmpty
+                        ? NetworkImage(userProfile.avatarUrl)
+                        : null,
+                    child: userProfile?.avatarUrl == null || userProfile!.avatarUrl.isEmpty
+                        ? Text(
+                            firstName.isNotEmpty ? firstName[0].toUpperCase() : 'U',
+                            style: const TextStyle(fontSize: 14, color: AppColors.onPrimaryContainer, fontWeight: FontWeight.bold),
+                          )
+                        : null,
                   ),
                 ),
-                PopupMenuItem<String>(
-                  value: 'notifications',
-                  child: Row(
-                    children: [
-                      Icon(Icons.notifications_outlined, size: 20, color: AppColors.onSurfaceVariant),
-                      const SizedBox(width: 12),
-                      const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'settings',
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings_outlined, size: 20, color: AppColors.onSurfaceVariant),
-                      const SizedBox(width: 12),
-                      const Text('Settings', style: TextStyle(fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.logout, size: 20, color: Colors.redAccent),
-                      const SizedBox(width: 12),
-                      const Text('Log Out', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.redAccent)),
-                    ],
-                  ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getGreeting(),
+                      style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                    Text(
+                      firstName,
+                      style: AppTypography.labelMd.copyWith(color: AppColors.onSurface),
+                    ),
+                  ],
                 ),
               ],
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primaryContainer,
-                backgroundImage: userProfile?.avatarUrl != null && userProfile!.avatarUrl.isNotEmpty
-                    ? NetworkImage(userProfile.avatarUrl)
-                    : null,
-                child: userProfile?.avatarUrl == null || userProfile!.avatarUrl.isEmpty
-                    ? Text(
-                        firstName.isNotEmpty ? firstName[0].toUpperCase() : 'U',
-                        style: const TextStyle(fontSize: 14, color: AppColors.onPrimaryContainer),
-                      )
-                    : null,
+            ),
+            actions: [
+              Consumer(
+                builder: (context, ref, child) {
+                  final unreadCount = ref.watch(unreadNotificationCountProvider).value ?? 0;
+                  return IconButton(
+                    icon: Badge(
+                      isLabelVisible: unreadCount > 0,
+                      label: Text('$unreadCount'),
+                      child: const Icon(LucideIcons.bell, color: AppColors.onSurface),
+                    ),
+                    onPressed: () => context.push('/notifications'),
+                  );
+                },
               ),
+              const SizedBox(width: 16),
+            ],
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(24.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildHeroCard(context, ref),
+                const SizedBox(height: 16),
+                _buildTimeTokenEconomyCard(context, ref),
+                const SizedBox(height: 20),
+                
+                Text('Your Learning Journey', style: AppTypography.headlineMd),
+                const SizedBox(height: 12),
+                _buildBentoGrid(context, ref, stats),
+                
+                const SizedBox(height: 24),
+                
+                Row(
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) => AppColors.aiGlow.createShader(bounds),
+                      child: const Icon(LucideIcons.sparkles, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('Your AI Match Today', style: AppTypography.headlineMd),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildAiMatch(context, ref, userTeachingSkill),
+                
+                const SizedBox(height: 24),
+                
+                Text('Upcoming Session', style: AppTypography.headlineMd),
+                const SizedBox(height: 12),
+                _buildUpcomingSession(context, ref, sessions),
+                
+                const SizedBox(height: 80), // Padding for bottom nav
+              ]),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Greeting
-            Text(
-              '${_getGreeting()}, $firstName 👋',
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
+    );
+  }
+
+  Widget _buildHeroCard(BuildContext context, WidgetRef ref) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary,
+            AppColors.primaryContainer,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryContainer.withOpacity(0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          )
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Opacity(
+              opacity: 0.1,
+              child: Icon(LucideIcons.zap, size: 200, color: Colors.white),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Ready to learn something new or share what you know?',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Learn from people.\nShare what you know.',
+                  style: AppTypography.headlineLg.copyWith(
+                    color: Colors.white,
+                    height: 1.2,
                   ),
-            ),
-            const SizedBox(height: 32),
-            
-            // Hero Card
-            StandardCard(
-              padding: EdgeInsets.zero, // Padding handled inside
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: Stack(
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Exchange skills with people who have something valuable to teach.',
+                  style: AppTypography.bodyMd.copyWith(
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    Positioned(
-                      right: -40,
-                      bottom: -40,
-                      child: Opacity(
-                        opacity: 0.05,
-                        child: Icon(Icons.people_alt, size: 240, color: AppColors.primary),
+                    ElevatedButton(
+                      onPressed: () => ref.read(mainNavIndexProvider.notifier).setIndex(1),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primary,
+                        elevation: 0,
                       ),
+                      child: const Text('Find a Skill Match'),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Learn from people.\nShare what you know.',
-                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.onSurface,
-                                        height: 1.2,
-                                      ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Exchange skills with people who have something valuable to teach — and something you can teach them.',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: AppColors.onSurfaceVariant,
-                                        height: 1.5,
-                                      ),
-                                ),
-                                const SizedBox(height: 32),
-                                Wrap(
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        elevation: 0,
-                                      ),
-                                      child: const Text('Find a Skill Match', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                                    ),
-                                    OutlinedButton(
-                                      onPressed: () {},
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: AppColors.primary,
-                                        side: const BorderSide(color: AppColors.primary, width: 2),
-                                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
-                                      child: const Text('Share a Skill', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                    OutlinedButton(
+                      onPressed: () => context.push('/profile-setup'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white54),
+                      ),
+                      child: const Text('Share a Skill'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fade(duration: 500.ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic);
+  }
+
+  Widget _buildTimeTokenEconomyCard(BuildContext context, WidgetRef ref) {
+    final tokenBalanceAsync = ref.watch(tokenBalanceProvider);
+    final balance = tokenBalanceAsync.value ?? 3;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showTokenEconomySheet(context, ref),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.35)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF59E0B).withOpacity(0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(LucideIcons.coins, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '$balance Time Tokens',
+                          style: AppTypography.labelMd.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            '1 Hr = 1 Token',
+                            style: TextStyle(
+                              color: Color(0xFF10B981),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (MediaQuery.of(context).size.width > 700) ...[
-                            const SizedBox(width: 40),
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                height: 220,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF0F766E), Color(0xFF4F46E5)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF4F46E5).withOpacity(0.3),
-                                      blurRadius: 24,
-                                      offset: const Offset(0, 12),
-                                    )
-                                  ],
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Opacity(
-                                      opacity: 0.2,
-                                      child: CustomPaint(
-                                        painter: _GridPainter(),
-                                        size: const Size(double.infinity, double.infinity),
-                                      ),
-                                    ),
-                                    const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        CircleAvatar(radius: 32, backgroundColor: Colors.white24, child: Icon(Icons.person, size: 36, color: Colors.white)),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                          child: Icon(Icons.sync_alt, color: Colors.white, size: 36),
-                                        ),
-                                        CircleAvatar(radius: 32, backgroundColor: Colors.white24, child: Icon(Icons.person_2, size: 36, color: Colors.white)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Teach to earn • Learn to spend • No tuition',
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 48),
-            
-            // AI Match of the Day
-            Row(
-              children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => AppColors.aiGlow.createShader(bounds),
-                  child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  '✨ Your AI Match Today',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Wallet',
+                      style: TextStyle(color: Color(0xFFD97706), fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(LucideIcons.chevronRight, size: 14, color: Color(0xFFD97706)),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fade(duration: 450.ms, delay: 100.ms).slideY(begin: 0.04, end: 0);
+  }
+
+  void _showTokenEconomySheet(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final borderCol = isDark ? const Color(0xFF334155) : AppColors.surfaceStroke;
+    final textColor = isDark ? Colors.white : AppColors.onSurface;
+    final subTextColor = isDark ? const Color(0xFF94A3B8) : AppColors.onSurfaceVariant;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Consumer(
+        builder: (context, ref, _) {
+          final balanceAsync = ref.watch(tokenBalanceProvider);
+          final balance = balanceAsync.value ?? 3;
+          final txAsync = ref.watch(tokenTransactionsProvider);
+
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
             ),
-            const SizedBox(height: 16),
-            
-            Consumer(
-              builder: (context, ref, child) {
-                final matchesAsyncValue = ref.watch(matchesProvider);
-                
-                return matchesAsyncValue.when(
-                  loading: () => const Center(child: Padding(padding: EdgeInsets.all(40.0), child: CircularProgressIndicator())),
-                  error: (err, stack) => StandardCard(child: Text('Error loading matches: $err')),
-                  data: (matches) {
-                    if (matches.isEmpty) {
-                      return StandardCard(
-                        padding: const EdgeInsets.all(32), 
-                        child: Center(
+            decoration: BoxDecoration(
+              color: sheetBg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: borderCol,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF59E0B).withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(LucideIcons.coins, color: Color(0xFFF59E0B), size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'No strong matches yet.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(height: 1.5, fontWeight: FontWeight.bold, fontSize: 18),
-                              ),
-                              const SizedBox(height: 24),
-                              Wrap(
-                                spacing: 16,
-                                runSpacing: 16,
-                                alignment: WrapAlignment.center,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () { context.push('/profile-setup'); }, 
-                                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                                    child: const Text('Add Skills')
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: () { context.push('/discover'); }, 
-                                    style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary),
-                                    child: const Text('Discover People')
-                                  ),
-                                ]
-                              )
-                            ]
-                          )
-                        )
-                      );
-                    }
-                    
-                    final match = matches.first;
-                    final similarityPercent = (match.similarity * 100).toStringAsFixed(0);
-                    
-                    return AiSuggestedCard(
-                      padding: const EdgeInsets.all(32.0),
+                              Text('Time-as-Currency Wallet', style: AppTypography.headlineMd.copyWith(color: textColor)),
+                              Text('1 Hour = 1 Token • Zero Cost Education', style: AppTypography.bodySm.copyWith(color: subTextColor)),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(LucideIcons.x, color: subTextColor, size: 20),
+                          onPressed: () => Navigator.pop(sheetContext),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(color: borderCol, height: 1),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: match.avatarUrl != null ? NetworkImage(match.avatarUrl!) : null,
-                                child: match.avatarUrl == null ? const Icon(Icons.person) : null,
-                                radius: 32,
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFD97706), Color(0xFF059669)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.amber.withOpacity(0.2),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Available Time Credit', style: AppTypography.labelSm.copyWith(color: Colors.white70)),
+                                const SizedBox(height: 6),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
                                   children: [
                                     Text(
-                                      match.fullName,
-                                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                                      '$balance',
+                                      style: AppTypography.headlineXl.copyWith(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: 24,
-                                              height: 24,
-                                              child: CircularProgressIndicator(
-                                                value: match.similarity,
-                                                strokeWidth: 3,
-                                                backgroundColor: AppColors.surfaceStroke,
-                                                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryContainer),
-                                              ),
-                                            ),
-                                            Text(
-                                              '$similarityPercent',
-                                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primaryContainer),
-                                            ),
-                                          ],
+                                    const SizedBox(width: 8),
+                                    Text('Time Tokens', style: AppTypography.labelMd.copyWith(color: Colors.white)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(LucideIcons.info, color: Colors.white, size: 14),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          'Teach 1 hr = +1 Token • Learn 1 hr = -1 Token. Tokens never expire!',
+                                          style: AppTypography.bodySm.copyWith(color: Colors.white, fontSize: 11),
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '% Compatibility',
-                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                                color: AppColors.onSurfaceVariant,
-                                                fontWeight: FontWeight.w600,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text('Why Time Tokens Work', style: AppTypography.labelMd.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Time is the great equalizer. Whether you are a senior engineer or a first-year student, your hour is worth exactly one token. Zero cost. Infinite learning.',
+                            style: AppTypography.bodySm.copyWith(color: subTextColor, height: 1.4),
+                          ),
+                          const SizedBox(height: 24),
+                          Text('Transaction Ledger', style: AppTypography.labelMd.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 12),
+                          txAsync.when(
+                            loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
+                            error: (e, _) => Text('Could not load ledger: $e', style: TextStyle(color: subTextColor)),
+                            data: (txs) {
+                              if (txs.isEmpty) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF0F172A) : AppColors.surfaceContainerLow,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: borderCol),
+                                  ),
+                                  child: Center(
+                                    child: Text('No transactions yet. Complete a swap to start earning!', style: TextStyle(color: subTextColor, fontSize: 12)),
+                                  ),
+                                );
+                              }
+                              return Column(
+                                children: txs.map((tx) {
+                                  final amount = (tx['amount'] as num?)?.toInt() ?? 0;
+                                  final isCredit = amount >= 0;
+                                  final desc = tx['description'] ?? 'Token transfer';
+                                  final createdAtStr = tx['created_at'] as String?;
+                                  final dateFormatted = createdAtStr != null
+                                      ? DateFormat('MMM d, y • h:mm a').format(DateTime.parse(createdAtStr).toLocal())
+                                      : 'Initial Credit';
+
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF0F172A) : AppColors.surfaceContainerLow,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(color: borderCol),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: (isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.12),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            isCredit ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight,
+                                            color: isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                                            size: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                desc,
+                                                style: AppTypography.bodySm.copyWith(
+                                                  color: textColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                ),
                                               ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                dateFormatted,
+                                                style: TextStyle(
+                                                  color: subTextColor,
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: (isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.12),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            isCredit ? '+$amount 🪙' : '$amount 🪙',
+                                            style: TextStyle(
+                                              color: isCredit ? const Color(0xFF059669) : const Color(0xFFDC2626),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              if (MediaQuery.of(context).size.width > 500)
-                                _buildViewMatchButton(context, match, similarityPercent),
-                            ],
+                                  );
+                                }).toList(),
+                              );
+                            },
                           ),
-                          const SizedBox(height: 24),
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8F9FF),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.surfaceStroke),
-                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBentoGrid(BuildContext context, WidgetRef ref, Map<String, int> stats) {
+    if (stats.values.every((v) => v == 0)) {
+      return EmptyState(
+        title: 'Start your journey',
+        description: 'Complete a swap to see your stats grow.',
+        icon: LucideIcons.rocket,
+        buttonText: 'Find a Match',
+        onButtonTap: () => ref.read(mainNavIndexProvider.notifier).setIndex(1),
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 520) {
+          return Row(
+            children: [
+              Expanded(
+                child: StatCard(
+                  title: 'Skills Learned',
+                  value: stats['skillsLearned'] ?? 0,
+                  icon: LucideIcons.bookOpen,
+                  iconColor: Colors.blue,
+                  onTap: () => _showSkillsLearnedModal(context, ref),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StatCard(
+                  title: 'Skills Shared',
+                  value: stats['skillsShared'] ?? 0,
+                  icon: LucideIcons.award,
+                  iconColor: Colors.orange,
+                  onTap: () => _showSkillsSharedModal(context, ref),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StatCard(
+                  title: 'Exchanges',
+                  value: stats['exchangesCompleted'] ?? 0,
+                  icon: LucideIcons.refreshCcw,
+                  iconColor: Colors.green,
+                  onTap: () => _showExchangesModal(context, ref),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StatCard(
+                  title: 'Connections',
+                  value: stats['connections'] ?? 0,
+                  icon: LucideIcons.users,
+                  iconColor: Colors.purple,
+                  onTap: () => _showConnectionsModal(context, ref),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: StatCard(
+                      title: 'Skills Learned',
+                      value: stats['skillsLearned'] ?? 0,
+                      icon: LucideIcons.bookOpen,
+                      iconColor: Colors.blue,
+                      onTap: () => _showSkillsLearnedModal(context, ref),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: StatCard(
+                      title: 'Skills Shared',
+                      value: stats['skillsShared'] ?? 0,
+                      icon: LucideIcons.award,
+                      iconColor: Colors.orange,
+                      onTap: () => _showSkillsSharedModal(context, ref),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: StatCard(
+                      title: 'Exchanges',
+                      value: stats['exchangesCompleted'] ?? 0,
+                      icon: LucideIcons.refreshCcw,
+                      iconColor: Colors.green,
+                      onTap: () => _showExchangesModal(context, ref),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: StatCard(
+                      title: 'Connections',
+                      value: stats['connections'] ?? 0,
+                      icon: LucideIcons.users,
+                      iconColor: Colors.purple,
+                      onTap: () => _showConnectionsModal(context, ref),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  void _showStatsBottomSheet({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required Widget child,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final borderCol = isDark ? const Color(0xFF334155) : AppColors.surfaceStroke;
+    final textColor = isDark ? Colors.white : AppColors.onSurface;
+    final subTextColor = isDark ? const Color(0xFF94A3B8) : AppColors.onSurfaceVariant;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        decoration: BoxDecoration(
+          color: sheetBg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: borderCol,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: iconColor, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: AppTypography.headlineMd.copyWith(color: textColor)),
+                          Text(subtitle, style: AppTypography.bodySm.copyWith(color: subTextColor)),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(LucideIcons.x, color: subTextColor, size: 20),
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: borderCol, height: 1),
+              Flexible(child: child),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showConnectionsModal(BuildContext context, WidgetRef ref) {
+    _showStatsBottomSheet(
+      context: context,
+      title: 'Your Connections',
+      subtitle: 'Peers you have connected with on SkillSwap',
+      icon: LucideIcons.users,
+      iconColor: Colors.purple,
+      child: Consumer(
+        builder: (context, ref, _) {
+          final connectionsAsync = ref.watch(connectionsProvider);
+          final currentUserId = ref.read(authServiceProvider).currentUser?.id;
+
+          return connectionsAsync.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (err, _) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(child: Text('Error loading connections: $err')),
+            ),
+            data: (connections) {
+              if (connections.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: EmptyState(
+                    title: 'No connections yet',
+                    description: 'Explore Discover to connect with learners and teachers.',
+                    icon: LucideIcons.users,
+                    buttonText: 'Find People to Connect',
+                    onButtonTap: () {
+                      Navigator.pop(context);
+                      ref.read(mainNavIndexProvider.notifier).setIndex(1);
+                    },
+                  ),
+                );
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: connections.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = connections[index];
+                  final isRequester = item['requester_id'] == currentUserId;
+                  final peer = (isRequester ? item['receiver'] : item['requester']) as Map<String, dynamic>?;
+                  final peerName = peer?['full_name'] as String? ?? 'Peer';
+                  final peerUsername = peer?['username'] as String? ?? 'user';
+                  final peerAvatar = peer?['avatar_url'] as String?;
+                  final peerId = peer?['id'] as String? ?? '';
+
+                  final targetRoute = peerId.isNotEmpty ? '/profile/$peerId' : '/profile/$peerUsername';
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.surfaceStroke),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.push(targetRoute);
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Row(
                               children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: AppColors.primaryContainer,
+                                  backgroundImage: peerAvatar != null && peerAvatar.isNotEmpty ? NetworkImage(peerAvatar) : null,
+                                  child: peerAvatar == null || peerAvatar.isEmpty
+                                      ? Text(peerName.isNotEmpty ? peerName[0].toUpperCase() : 'U', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('You teach', style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w500)),
-                                      const SizedBox(height: 6),
-                                      Text(userTeachingSkill, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.onSurface)),
+                                      Text(peerName, style: AppTypography.headlineMd.copyWith(fontSize: 16)),
+                                      Text('@$peerUsername', style: AppTypography.labelSm.copyWith(color: AppColors.primary)),
                                     ],
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
-                                    ]
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryContainer.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(Icons.swap_horiz, color: AppColors.primary, size: 24),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text('${match.fullName} teaches', style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w500)),
-                                      const SizedBox(height: 6),
-                                      Text(match.skillName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.onSurface)),
+                                      const Icon(LucideIcons.checkCheck, size: 12, color: AppColors.primaryContainer),
+                                      const SizedBox(width: 4),
+                                      Text('Connected', style: AppTypography.labelSm.copyWith(color: AppColors.primaryContainer, fontSize: 11)),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainerLowest,
-                              borderRadius: BorderRadius.circular(12),
-                              border: const Border(left: BorderSide(color: AppColors.primaryContainer, width: 4)),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ShaderMask(
-                                  shaderCallback: (bounds) => AppColors.aiGlow.createShader(bounds),
-                                  child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  context.push('/chat/$peerUsername');
+                                },
+                                icon: const Icon(LucideIcons.messageSquare, size: 14),
+                                label: const Text('Chat'),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        match.explanation,
-                                        style: const TextStyle(color: AppColors.onSurfaceVariant, fontStyle: FontStyle.italic, fontSize: 14, height: 1.4),
-                                      ),
-                                      if (match.suggestions.isNotEmpty) ...[
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Tip: ${match.suggestions}',
-                                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 13, height: 1.4),
-                                        ),
-                                      ]
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                          if (MediaQuery.of(context).size.width <= 500) ...[
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              child: _buildViewMatchButton(context, match, similarityPercent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  context.push('/schedule/$peerUsername');
+                                },
+                                icon: const Icon(LucideIcons.calendar, size: 14),
+                                label: const Text('Schedule'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryContainer,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                context.push(targetRoute);
+                              },
+                              icon: const Icon(LucideIcons.user, size: 16),
+                              tooltip: 'View Profile',
                             ),
                           ],
-                        ],
-                      ),
-                    );
-                  }
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _showSkillsLearnedModal(BuildContext context, WidgetRef ref) {
+    _showStatsBottomSheet(
+      context: context,
+      title: 'Skills Learned',
+      subtitle: 'Skills acquired through completed skill swap exchanges',
+      icon: LucideIcons.bookOpen,
+      iconColor: Colors.blue,
+      child: Consumer(
+        builder: (context, ref, _) {
+          final skillsAsync = ref.watch(learnedSkillsProvider);
+
+          return skillsAsync.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (err, _) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(child: Text('Error loading learned skills: $err')),
+            ),
+            data: (skills) {
+              if (skills.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: EmptyState(
+                    title: 'No skills learned yet',
+                    description: 'Complete a swap session where a partner teaches you to log learned skills here.',
+                    icon: LucideIcons.bookOpen,
+                    buttonText: 'Find Skills to Learn',
+                    onButtonTap: () {
+                      Navigator.pop(context);
+                      ref.read(mainNavIndexProvider.notifier).setIndex(1);
+                    },
+                  ),
                 );
               }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: skills.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = skills[index];
+                  final skill = item['skill'] as Map<String, dynamic>?;
+                  final skillName = skill?['name'] as String? ?? 'Skill';
+                  final provider = item['provider'] as Map<String, dynamic>?;
+                  final providerName = provider?['full_name'] as String? ?? 'Mentor';
+                  final rating = item['rating'] as int? ?? 5;
+                  final hours = (item['hours_exchanged'] as num?)?.toDouble() ?? 1.0;
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.surfaceStroke),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(LucideIcons.bookOpen, color: Colors.blue, size: 20),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(skillName, style: AppTypography.headlineMd.copyWith(fontSize: 16)),
+                              const SizedBox(height: 2),
+                              Text('Taught by $providerName • ${hours.toStringAsFixed(1)}h', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                            const SizedBox(width: 2),
+                            Text('$rating.0', style: AppTypography.labelMd),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _showSkillsSharedModal(BuildContext context, WidgetRef ref) {
+    _showStatsBottomSheet(
+      context: context,
+      title: 'Skills Shared',
+      subtitle: 'Skills and expertise you have taught to others',
+      icon: LucideIcons.award,
+      iconColor: Colors.orange,
+      child: Consumer(
+        builder: (context, ref, _) {
+          final skillsAsync = ref.watch(sharedSkillsProvider);
+
+          return skillsAsync.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
             ),
-            
-            const SizedBox(height: 48),
-            
-            // Your Learning Journey
-            Text(
-              'Your Learning Journey',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+            error: (err, _) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(child: Text('Error loading shared skills: $err')),
+            ),
+            data: (skills) {
+              if (skills.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: EmptyState(
+                    title: 'No skills shared yet',
+                    description: 'Teach skills in swap sessions with peers to grow your mentoring reputation.',
+                    icon: LucideIcons.award,
+                    buttonText: 'View Pending Requests',
+                    onButtonTap: () {
+                      Navigator.pop(context);
+                      ref.read(mainNavIndexProvider.notifier).setIndex(3);
+                    },
                   ),
-            ),
-            const SizedBox(height: 20),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth > 800 ? 4 : (constraints.maxWidth > 400 ? 2 : 1);
-                return GridView.count(
-                  crossAxisCount: crossAxisCount,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: crossAxisCount == 1 ? 3.0 : 1.8,
-                  children: [
-                    _buildStatCard(Icons.school_outlined, 'Skills Learned', '${stats['skillsLearned']}', context),
-                    _buildStatCard(Icons.workspace_premium_outlined, 'Skills Shared', '${stats['skillsShared']}', context),
-                    _buildStatCard(Icons.handshake_outlined, 'Exchanges Completed', '${stats['exchangesCompleted']}', context),
-                    _buildStatCard(Icons.people_outline, 'Connections', '${stats['connections']}', context),
-                  ],
                 );
               }
-            ),
 
-            const SizedBox(height: 48),
-            
-            // Upcoming Session
-            Text(
-              'Upcoming Session',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            if (sessions.isEmpty)
-              StandardCard(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: Column(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 48, color: AppColors.outline),
-                      const SizedBox(height: 16),
-                      Text('No upcoming sessions', style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 8),
-                      const Text('Schedule a session with a match to start learning.', style: TextStyle(color: AppColors.onSurfaceVariant)),
-                    ],
-                  ),
-                ),
-              )
-            else
-              Builder(
-                builder: (context) {
-                  final session = sessions.first;
-                  final title = session['title'] ?? 'Skill Swap Session';
-                  final scheduledTime = DateTime.parse(session['scheduled_time']);
-                  final duration = session['duration_minutes'] ?? 45;
-                  
-                  String timeStr = '${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}';
-                  String dateStr = '${scheduledTime.month}/${scheduledTime.day}';
-                  if (scheduledTime.day == DateTime.now().day) {
-                    dateStr = 'Today';
-                  } else if (scheduledTime.day == DateTime.now().day + 1) {
-                    dateStr = 'Tomorrow';
-                  }
+              return ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: skills.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = skills[index];
+                  final skill = item['skill'] as Map<String, dynamic>?;
+                  final skillName = skill?['name'] as String? ?? 'Skill';
+                  final receiver = item['receiver'] as Map<String, dynamic>?;
+                  final receiverName = receiver?['full_name'] as String? ?? 'Learner';
+                  final hours = (item['hours_exchanged'] as num?)?.toDouble() ?? 1.0;
+                  final feedback = item['feedback'] as String? ?? '';
 
-                  return Column(
-                    children: [
-                      StandardCard(
-                        padding: const EdgeInsets.all(24),
-                        child: Row(
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.surfaceStroke),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
                             Container(
-                              width: 56,
-                              height: 56,
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.orange.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.palette_outlined, color: AppColors.primary, size: 28),
+                              child: const Icon(LucideIcons.award, color: Colors.orange, size: 20),
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 16,
-                                    runSpacing: 8,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.calendar_today, size: 16, color: AppColors.onSurfaceVariant),
-                                          const SizedBox(width: 6),
-                                          Text('$dateStr · $timeStr', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.schedule, size: 16, color: AppColors.onSurfaceVariant),
-                                          const SizedBox(width: 6),
-                                          Text('$duration min · Online', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                  Text(skillName, style: AppTypography.headlineMd.copyWith(fontSize: 16)),
+                                  const SizedBox(height: 2),
+                                  Text('Learned by $receiverName • ${hours.toStringAsFixed(1)}h', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
                                 ],
                               ),
                             ),
-                            if (MediaQuery.of(context).size.width > 500)
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  elevation: 0,
-                                ),
-                                child: const Text('Join Session', style: TextStyle(fontWeight: FontWeight.w600)),
-                              ),
                           ],
                         ),
-                      ),
-                      if (MediaQuery.of(context).size.width <= 500) ...[
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 0,
+                        if (feedback.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceBg,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('Join Session', style: TextStyle(fontWeight: FontWeight.w600)),
+                            child: Text(
+                              '"$feedback"',
+                              style: AppTypography.bodySm.copyWith(fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _showExchangesModal(BuildContext context, WidgetRef ref) {
+    _showStatsBottomSheet(
+      context: context,
+      title: 'Completed Exchanges',
+      subtitle: 'Complete history of your 1-on-1 skill swaps',
+      icon: LucideIcons.refreshCcw,
+      iconColor: Colors.green,
+      child: Consumer(
+        builder: (context, ref, _) {
+          final exchangesAsync = ref.watch(exchangesProvider);
+
+          return exchangesAsync.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (err, _) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(child: Text('Error loading exchanges: $err')),
+            ),
+            data: (exchanges) {
+              if (exchanges.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: EmptyState(
+                    title: 'No exchanges completed yet',
+                    description: 'Schedule a session or complete an ongoing swap to see your records here.',
+                    icon: LucideIcons.refreshCcw,
+                    buttonText: 'Find a Partner',
+                    onButtonTap: () {
+                      Navigator.pop(context);
+                      ref.read(mainNavIndexProvider.notifier).setIndex(1);
+                    },
+                  ),
+                );
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: exchanges.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = exchanges[index];
+                  final skill = item['skill'] as Map<String, dynamic>?;
+                  final skillName = skill?['name'] as String? ?? 'Skill Swap';
+                  final provider = item['provider'] as Map<String, dynamic>?;
+                  final receiver = item['receiver'] as Map<String, dynamic>?;
+                  final hours = (item['hours_exchanged'] as num?)?.toDouble() ?? 1.0;
+                  final rating = item['rating'] as int? ?? 5;
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.surfaceStroke),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(LucideIcons.refreshCcw, color: Colors.green, size: 20),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(skillName, style: AppTypography.headlineMd.copyWith(fontSize: 16)),
+                              const SizedBox(height: 2),
+                              Text('${provider?['full_name'] ?? 'Provider'} ⇄ ${receiver?['full_name'] ?? 'Learner'}', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
+                              Text('${hours.toStringAsFixed(1)} hours exchanged', style: AppTypography.bodySm.copyWith(color: AppColors.primary, fontSize: 11)),
+                            ],
                           ),
                         ),
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                            const SizedBox(width: 2),
+                            Text('$rating.0', style: AppTypography.labelMd),
+                          ],
+                        ),
                       ],
-                    ],
+                    ),
                   );
-                }
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAiMatch(BuildContext context, WidgetRef ref, String userTeachingSkill) {
+    final matchesAsyncValue = ref.watch(matchesProvider);
+    
+    return matchesAsyncValue.when(
+      loading: () => const Skeleton(height: 200, borderRadius: 16),
+      error: (err, stack) => Text('Error loading matches: $err'),
+      data: (matches) {
+        if (matches.isEmpty) {
+          return EmptyState(
+            title: 'No strong matches yet',
+            description: 'We are looking for the perfect skill exchange partner for you.',
+            icon: LucideIcons.search,
+            buttonText: 'Update Skills',
+            onButtonTap: () => context.push('/profile-setup'),
+          );
+        }
+        
+        final match = matches.first;
+        final similarityPercent = (match.similarity * 100).toStringAsFixed(0);
+        
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.surfaceStroke),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withOpacity(0.04),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 4,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.aiGlow,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                ),
               ),
-
-            const SizedBox(height: 48),
-
-            // Quick Actions
-            Text(
-              'What would you like to do?',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isMobile = constraints.maxWidth < 650;
-                return Flex(
-                  direction: isMobile ? Axis.vertical : Axis.horizontal,
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
                   children: [
-                    Expanded(
-                      flex: isMobile ? 0 : 1,
-                      child: _buildActionCard(
-                        icon: Icons.search,
-                        title: 'Find a Match',
-                        description: 'Discover people who complement your skills',
-                        onTap: () {},
-                      ),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundImage: match.avatarUrl != null ? NetworkImage(match.avatarUrl!) : null,
+                          child: match.avatarUrl == null ? const Icon(LucideIcons.user) : null,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(match.fullName, style: AppTypography.headlineMd),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(LucideIcons.zap, size: 14, color: AppColors.primaryContainer),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$similarityPercent% Match',
+                                    style: AppTypography.labelSm.copyWith(color: AppColors.primaryContainer),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (match.username != null && match.username.toString().isNotEmpty) {
+                              context.push('/profile/${match.username}');
+                            } else {
+                              context.push(Uri(path: '/match', queryParameters: {'id': match.userId, 'name': match.fullName, 'skill': match.skillName, 'similarity': similarityPercent}).toString());
+                            }
+                          },
+                          child: const Text('Connect'),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                    Expanded(
-                      flex: isMobile ? 0 : 1,
-                      child: _buildActionCard(
-                        icon: Icons.add_circle_outline,
-                        title: 'Add a Skill',
-                        description: 'Tell the community what you can teach',
-                        onTap: () {
-                          context.push('/profile-setup');
-                        },
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceBg,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                    SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                    Expanded(
-                      flex: isMobile ? 0 : 1,
-                      child: _buildActionCard(
-                        icon: Icons.calendar_month,
-                        title: 'Schedule a Session',
-                        description: 'Plan your next knowledge exchange',
-                        onTap: () {},
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('You teach', style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant)),
+                                const SizedBox(height: 4),
+                                Text(userTeachingSkill, style: AppTypography.labelMd),
+                              ],
+                            ),
+                          ),
+                          const Icon(LucideIcons.arrowRightLeft, color: AppColors.primary, size: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('They teach', style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant)),
+                                const SizedBox(height: 4),
+                                Text(match.skillName, style: AppTypography.labelMd),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                );
-              },
-            ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildViewMatchButton(BuildContext context, dynamic match, String similarityPercent) {
-    return ElevatedButton(
-      onPressed: () {
-        if (match.username != null && match.username.toString().isNotEmpty) {
-          context.push('/profile/${match.username}');
-        } else {
-          context.push(
-            Uri(
-              path: '/match',
-              queryParameters: {
-                'id': match.userId,
-                'name': match.fullName,
-                'skill': match.skillName,
-                'similarity': similarityPercent,
-                if (match.avatarUrl != null) 'avatar': match.avatarUrl,
-              },
-            ).toString()
-          );
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.onSurface,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('View Match', style: TextStyle(fontWeight: FontWeight.w600)),
-          SizedBox(width: 8),
-          Icon(Icons.arrow_forward, size: 18),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(IconData icon, String label, String value, BuildContext context) {
-    return StandardCard(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.primaryContainer, size: 24),
-              const Spacer(),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionCard({required IconData icon, required String title, required String description, required VoidCallback onTap}) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.surfaceStroke),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLow,
-                  shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 24),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.onSurface),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14, height: 1.4),
               ),
             ],
           ),
-        ),
-      ),
+        ).animate().fade(duration: 500.ms).slideY(begin: 0.1, end: 0);
+      },
     );
   }
-}
 
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 1.0;
+  Widget _buildUpcomingSession(BuildContext context, WidgetRef ref, List<dynamic> sessions) {
+    if (sessions.isEmpty) {
+      return EmptyState(
+        title: 'No upcoming sessions',
+        description: 'Schedule a session with a match to start learning.',
+        icon: LucideIcons.calendar,
+      );
+    }
     
-    for (double i = 0; i < size.width; i += 20) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-    for (double i = 0; i < size.height; i += 20) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
+    final session = sessions.first;
+    final title = session['title'] ?? 'Skill Swap Session';
+    final scheduledTime = DateTime.parse(session['scheduled_time']);
+    final duration = session['duration_minutes'] ?? 45;
+    
+    String timeStr = '${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}';
+    String dateStr = '${scheduledTime.month}/${scheduledTime.day}';
+    
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceStroke),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(LucideIcons.calendarClock, color: AppColors.primary),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.headlineMd),
+                const SizedBox(height: 4),
+                Text('$dateStr • $timeStr • $duration min', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
+              ],
+            ),
+          ),
+          OutlinedButton(
+            onPressed: () {
+              final link = session['meeting_link'] as String?;
+              if (link != null && link.isNotEmpty) {
+                ref.read(sessionServiceProvider).openMeetingLink(link);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('No meeting link available for this session.')),
+                );
+              }
+            },
+            child: const Text('Join'),
+          ),
+        ],
+      ),
+    ).animate().fade(duration: 500.ms).slideY(begin: 0.1, end: 0);
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -67,21 +67,78 @@ class ChatService {
     if (currentUserId == null) return null;
     
     try {
-      // First get the peer's ID
-      final peerResp = await _client.from('profiles').select('id, username, full_name, avatar_url').eq('username', peerUsername).maybeSingle();
+      // 1. Resolve peer profile by username, id (UUID), or full_name (case-insensitive)
+      Map<String, dynamic>? peerResp;
+      
+      try {
+        peerResp = await _client.from('profiles')
+            .select('id, username, full_name, avatar_url, bio, experience_level')
+            .ilike('username', peerUsername)
+            .maybeSingle();
+      } catch (_) {}
+      
+      if (peerResp == null) {
+        try {
+          peerResp = await _client.from('profiles')
+              .select('id, username, full_name, avatar_url, bio, experience_level')
+              .eq('id', peerUsername)
+              .maybeSingle();
+        } catch (_) {}
+      }
+      
+      if (peerResp == null) {
+        try {
+          peerResp = await _client.from('profiles')
+              .select('id, username, full_name, avatar_url, bio, experience_level')
+              .ilike('full_name', peerUsername)
+              .maybeSingle();
+        } catch (_) {}
+      }
+      
       if (peerResp == null) return null;
       
-      final peerId = peerResp['id'];
+      final peerId = peerResp['id'] as String;
       
-      // Then get the conversation
-      final convResp = await _client.from('conversations').select('id').or('and(participant1_id.eq.$currentUserId,participant2_id.eq.$peerId),and(participant1_id.eq.$peerId,participant2_id.eq.$currentUserId)').maybeSingle();
+      // 2. Fetch existing conversation
+      final convResp = await _client.from('conversations')
+          .select('id')
+          .or('and(participant1_id.eq.$currentUserId,participant2_id.eq.$peerId),and(participant1_id.eq.$peerId,participant2_id.eq.$currentUserId)')
+          .maybeSingle();
       
-      if (convResp == null) return null;
+      if (convResp != null) {
+        return {
+          'id': convResp['id'],
+          'peer': peerResp,
+        };
+      }
       
-      return {
-        'id': convResp['id'],
-        'peer': peerResp,
-      };
+      // 3. Auto-create conversation if none exists yet so chat works immediately
+      try {
+        final newConv = await _client.from('conversations').insert({
+          'participant1_id': currentUserId,
+          'participant2_id': peerId,
+        }).select('id').single();
+        
+        return {
+          'id': newConv['id'],
+          'peer': peerResp,
+        };
+      } catch (e) {
+        print('Notice: Auto-creating conversation: $e');
+        // Retry fetch in case of race condition
+        final retryConv = await _client.from('conversations')
+            .select('id')
+            .or('and(participant1_id.eq.$currentUserId,participant2_id.eq.$peerId),and(participant1_id.eq.$peerId,participant2_id.eq.$currentUserId)')
+            .maybeSingle();
+        if (retryConv != null) {
+          return {
+            'id': retryConv['id'],
+            'peer': peerResp,
+          };
+        }
+      }
+      
+      return null;
     } catch (e) {
       print('Error getting conversation by username: $e');
       return null;
